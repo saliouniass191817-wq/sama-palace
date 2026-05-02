@@ -2,12 +2,13 @@
 
 @section('content')
 <div class="container-narrow mx-auto">
-    <div class="mb-4">
-        <h1 class="h3 fw-bold">Create your seller account</h1>
-        <p class="text-secondary mb-0">Use your phone number to manage a simple shop.</p>
+    <div class="text-center mb-4">
+        <div class="section-kicker mb-2">Create shop</div>
+        <h1 class="display-6 fw-bold">Create your seller account</h1>
+        <p class="text-muted-soft mb-0">Use your phone number to create and manage a simple online shop.</p>
     </div>
 
-    <form method="POST" action="{{ route('register') }}" class="bg-white border rounded-3 p-3 p-md-4">
+    <form method="POST" action="{{ route('register') }}" class="app-card p-3 p-md-5">
         @csrf
 
         <div class="row g-3">
@@ -37,8 +38,8 @@
             </div>
         </div>
 
-        <button class="btn btn-success w-100 mt-4">Create account</button>
-        <p class="text-center text-secondary small mt-3 mb-0">
+        <button class="btn btn-success btn-custom w-100 py-2 mt-4">Create account</button>
+        <p class="text-center text-muted-soft small mt-3 mb-0">
             Already registered? <a href="{{ route('login') }}">Login</a>
         </p>
     </form>
