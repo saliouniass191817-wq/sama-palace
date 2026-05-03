@@ -1,2 +1,0 @@
-[phases.setup]
-nixPackages = ["php82Extensions.pdo_mysql"]
