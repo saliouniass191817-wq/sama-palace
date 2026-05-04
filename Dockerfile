@@ -1,24 +1,39 @@
-FROM dunglas/frankenphp:php8.2.30-bookworm
+FROM node:22-alpine AS assets
 
-# Install MySQL driver
-RUN install-php-extensions pdo_mysql
-
-# Copy application
-COPY . /app
-
-# Set working directory
 WORKDIR /app
 
-# Install dependencies
-RUN composer install --optimize-autoloader --no-scripts --no-interaction
+COPY package*.json vite.config.js ./
+COPY resources ./resources
+COPY public ./public
 
-# Build frontend
-RUN npm install && npm run build
+RUN npm install
+RUN npm run build
 
-# Cache Laravel
-RUN php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache
+FROM composer:2 AS vendor
 
-# Start command
-CMD ["/start-container.sh"]
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts
+
+COPY . .
+RUN composer dump-autoload --optimize
+
+FROM dunglas/frankenphp:1-php8.2-bookworm
+
+RUN install-php-extensions \
+    mbstring \
+    pdo_mysql \
+    zip \
+    opcache
+
+WORKDIR /app
+
+COPY --from=vendor /app .
+COPY --from=assets /app/public/build ./public/build
+
+RUN chown -R www-data:www-data storage bootstrap/cache
+
+EXPOSE 80
+
+CMD SERVER_NAME=":${PORT:-80}" php artisan config:cache && php artisan migrate --force && SERVER_NAME=":${PORT:-80}" frankenphp run --config /etc/caddy/Caddyfile
