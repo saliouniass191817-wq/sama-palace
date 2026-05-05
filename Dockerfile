@@ -13,14 +13,22 @@ RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoload
 COPY . .
 RUN composer dump-autoload --optimize
 
-FROM dunglas/frankenphp:1-php8.2-bookworm
-RUN install-php-extensions mbstring pdo_mysql zip opcache
-WORKDIR /app
+FROM php:8.2-apache
+RUN apt-get update && apt-get install -y libpng-dev libonig-dev libxml2-dev zip \
+    && docker-php-ext-install pdo_mysql mbstring zip opcache \
+    && a2enmod rewrite
+
+WORKDIR /var/www/html
 COPY --from=vendor /app .
 COPY --from=assets /app/public/build ./public/build
-COPY Caddyfile /etc/caddy/Caddyfile
+
 RUN chown -R www-data:www-data storage bootstrap/cache
+
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
+    /etc/apache2/sites-available/*.conf \
+    /etc/apache2/apache2.conf
 
 EXPOSE 80
 
-CMD php artisan config:cache && php artisan migrate --force && frankenphp run --config /etc/caddy/Caddyfile --adapter caddyfile
+CMD php artisan config:cache && php artisan migrate --force && apache2-foreground
