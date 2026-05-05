@@ -1,0 +1,8 @@
+[phases.setup]
+nixPkgs = ["php82", "php82Extensions.pdo_mysql", "php82Extensions.mbstring", "php82Extensions.xml", "nodejs_20", "composer"]
+
+[phases.build]
+cmds = ["composer install --no-dev --optimize-autoloader", "npm install", "npm run build"]
+
+[phases.start]
+cmd = "php artisan migrate --force && vendor/bin/heroku-php-apache2 public/"
