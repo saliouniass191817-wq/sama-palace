@@ -35,4 +35,6 @@ COPY --from=assets /app/public/build ./public/build
 RUN chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 80
-CMD php artisan config:cache && php artisan migrate --force && SERVER_NAME=":${PORT:-80}" frankenphp run --config /etc/caddy/Caddyfile
+COPY Caddyfile /etc/caddy/Caddyfile
+
+CMD php artisan config:cache && php artisan migrate --force && frankenphp run --config /etc/caddy/Caddyfile --adapter caddyfile
