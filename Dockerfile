@@ -1,25 +1,20 @@
 FROM php:8.2-apache
 
-RUN a2dismod mpm_event && \
-    a2enmod mpm_prefork rewrite
+RUN apt-get update && apt-get install -y \
+    libzip-dev \
+    && docker-php-ext-install pdo pdo_mysql
 
-RUN docker-php-ext-install pdo pdo_mysql
+RUN a2enmod rewrite
 
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
-    /etc/apache2/sites-available/*.conf \
-    /etc/apache2/apache2.conf
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
-
 COPY . .
 
-RUN chown -R www-data:www-data storage bootstrap/cache
+RUN composer install --no-dev --optimize-autoloader
 
-EXPOSE 80
+RUN chown -R www-data:www-data /var/www/html
 
-CMD composer install --no-dev --optimize-autoloader && \
-    php artisan key:generate --force && \
-    php artisan config:cache && \
-    php artisan migrate --force && \
-    apache2-foreground
+RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
+
+CMD ["apache2-foreground"]
