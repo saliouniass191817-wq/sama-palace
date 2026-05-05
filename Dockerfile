@@ -24,7 +24,7 @@ RUN apt-get update -y \
         zip \
         unzip \
     && docker-php-ext-install pdo_mysql mbstring zip opcache \
-    && a2enmod rewrite \
+    && a2dismod mpm_event mpm_worker && a2enmod mpm_prefork rewrite\
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /var/www/html
