@@ -23,9 +23,7 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->name('logout');
 
 Route::middleware('auth')->group(function () {
-
-    Route::get('/shops', function () {
-        return redirect()->route('dashboard');
+    
     Route::get('/dashboard', [ShopController::class, 'dashboard'])->name('dashboard');
     Route::get('/shops/create', [ShopController::class, 'create'])->name('shops.create');
     Route::post('/shops', [ShopController::class, 'store'])->name('shops.store');
