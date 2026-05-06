@@ -31,6 +31,8 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('shops.create')->with('success', 'Account created. Create your shop now.');
+        return redirect()
+            ->route('shops.create')
+            ->with('success', 'Inscription confirmee pour le numero '.$user->phone.'. Vous pouvez maintenant creer votre boutique.');
     }
 }

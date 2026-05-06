@@ -25,6 +25,7 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
 Route::middleware('auth')->group(function () {
     
     Route::get('/dashboard', [ShopController::class, 'dashboard'])->name('dashboard');
+    Route::get('/shops', fn () => redirect()->route('dashboard'))->name('shops.index');
     Route::get('/shops/create', [ShopController::class, 'create'])->name('shops.create');
     Route::post('/shops', [ShopController::class, 'store'])->name('shops.store');
     Route::get('/shops/edit', [ShopController::class, 'edit'])->name('shops.edit');
