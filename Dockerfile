@@ -24,6 +24,8 @@ RUN composer install --no-dev --optimize-autoloader
 RUN npm install
 RUN npm run build
 
+RUN php artisan storage:link --force
+
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 storage bootstrap/cache
 

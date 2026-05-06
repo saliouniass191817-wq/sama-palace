@@ -31,7 +31,7 @@ class ProductController extends Controller
         $validated = $this->validateProduct($request);
 
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('products', 'public');
+            $validated['image'] = $request->file('image')->store('produits', 'public');
         }
 
         $shop->products()->create($validated);
@@ -56,7 +56,7 @@ class ProductController extends Controller
                 Storage::disk('public')->delete($product->image);
             }
 
-            $validated['image'] = $request->file('image')->store('products', 'public');
+            $validated['image'] = $request->file('image')->store('produits', 'public');
         }
 
         $product->update($validated);

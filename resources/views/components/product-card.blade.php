@@ -7,7 +7,7 @@
 <div class="card product-card border-0">
     <div class="product-image-wrap">
         @if ($product->image)
-            <img class="card-img-top product-image" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
+            <img class="card-img-top product-image" src="{{ Illuminate\Support\Facades\Storage::url($product->image) }}" alt="{{ $product->name }}">
         @else
             <div class="product-placeholder">
                 <span class="fw-semibold">Pas d'image disponible</span>
