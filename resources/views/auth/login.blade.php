@@ -28,7 +28,7 @@
 
                 <button class="btn btn-success btn-custom w-100 py-2">Se connecter</button>
                 <p class="text-center text-muted-soft small mt-3 mb-0">
-                    New seller? <a href="{{ route('register') }}">Créer un compte</a>
+                    Nouveau vendeur? <a href="{{ route('register') }}">Créer un compte</a>
                 </p>
             </form>
         </div>

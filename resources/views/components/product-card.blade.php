@@ -10,7 +10,7 @@
             <img class="card-img-top product-image" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
         @else
             <div class="product-placeholder">
-                <span class="fw-semibold">No image</span>
+                <span class="fw-semibold">Pas d'image disponible</span>
             </div>
         @endif
     </div>
@@ -24,16 +24,16 @@
         <p class="text-muted-soft small flex-grow-1 mb-3">{{ $product->description ?: 'Description coming soon.' }}</p>
 
         @if ($showClicks)
-            <div class="small text-success fw-semibold mb-3">{{ $product->clicks_count ?? 0 }} WhatsApp clicks</div>
+            <div class="small text-success fw-semibold mb-3">{{ $product->clicks_count ?? 0 }} Cliques whatsapp</div>
         @endif
 
         @if ($context === 'public')
             <a class="btn btn-whatsapp btn-custom w-100" href="{{ route('orders.whatsapp', $product) }}">
-                Order on WhatsApp
+                Commander sur whatsapp
             </a>
         @else
             <a class="btn btn-outline-primary btn-custom w-100" href="{{ route('products.edit', $product) }}">
-                Edit product
+                Editer le produit
             </a>
         @endif
     </div>
