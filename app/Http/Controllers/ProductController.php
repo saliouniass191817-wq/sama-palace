@@ -32,7 +32,7 @@ class ProductController extends Controller
         $validated = $this->validateProduct($request);
 
         if ($request->hasFile('image')) {
-            $imageUrl = Cloudinary::upload($request->file('image')->getRealPath(), [
+            $imageUrl = Cloudinary::uploadApi()->upload($request->file('image')->getRealPath(), [
                 'folder' => 'produits'
             ])->getSecurePath();
             $validated['image'] = $imageUrl;
@@ -60,11 +60,11 @@ class ProductController extends Controller
             if ($product->image && str_contains($product->image, 'cloudinary.com')) {
                 $publicId = $this->extractCloudinaryPublicId($product->image);
                 if ($publicId) {
-                    Cloudinary::destroy($publicId);
+                    Cloudinary::uploadApi()->destroy($publicId);
                 }
             }
 
-            $imageUrl = Cloudinary::upload($request->file('image')->getRealPath(), [
+            $imageUrl = Cloudinary::uploadApi()->upload($request->file('image')->getRealPath(), [
                 'folder' => 'produits'
             ])->getSecurePath();
             $validated['image'] = $imageUrl;
@@ -83,7 +83,7 @@ class ProductController extends Controller
             if (str_contains($product->image, 'cloudinary.com')) {
                 $publicId = $this->extractCloudinaryPublicId($product->image);
                 if ($publicId) {
-                    Cloudinary::destroy($publicId);
+                    Cloudinary::uploadApi()->destroy($publicId);
                 }
             } else {
                 Storage::disk('public')->delete($product->image);

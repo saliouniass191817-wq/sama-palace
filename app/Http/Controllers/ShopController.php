@@ -47,7 +47,7 @@ class ShopController extends Controller
         $validated['slug'] = $this->uniqueSlug($validated['name']);
 
         if ($request->hasFile('logo')) {
-            $logoUrl = Cloudinary::upload($request->file('logo')->getRealPath(), [
+            $logoUrl = Cloudinary::uploadApi()->upload($request->file('logo')->getRealPath(), [
                 'folder' => 'shops'
             ])->getSecurePath();
             $validated['logo'] = $logoUrl;
@@ -79,11 +79,11 @@ class ShopController extends Controller
             if ($shop->logo && str_contains($shop->logo, 'cloudinary.com')) {
                 $publicId = $this->extractCloudinaryPublicId($shop->logo);
                 if ($publicId) {
-                    Cloudinary::destroy($publicId);
+                    Cloudinary::uploadApi()->destroy($publicId);
                 }
             }
 
-            $logoUrl = Cloudinary::upload($request->file('logo')->getRealPath(), [
+            $logoUrl = Cloudinary::uploadApi()->upload($request->file('logo')->getRealPath(), [
                 'folder' => 'shops'
             ])->getSecurePath();
             $validated['logo'] = $logoUrl;
