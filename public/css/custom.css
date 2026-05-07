@@ -98,11 +98,14 @@ a:hover {
 .product-image-wrap {
     overflow: hidden;
     background: #eef2f7;
+    aspect-ratio: 4 / 3;
+    width: 100%;
 }
 
 .product-image {
+    display: block;
     width: 100%;
-    aspect-ratio: 4 / 3;
+    height: 100%;
     object-fit: cover;
     background: #eef2f7;
     transform-origin: center;

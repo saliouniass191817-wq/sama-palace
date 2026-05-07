@@ -24,7 +24,8 @@ RUN composer install --no-dev --optimize-autoloader
 RUN npm install
 RUN npm run build
 
-RUN php artisan storage:link --force
+RUN mkdir -p storage/app/public \
+    && php artisan storage:link --force
 
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 storage bootstrap/cache
@@ -36,4 +37,4 @@ RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available
 
 EXPOSE 8080
 
-CMD ["apache2-foreground"]
+CMD ["sh", "-c", "mkdir -p storage/app/public bootstrap/cache && php artisan storage:link --force || true; chown -R www-data:www-data storage bootstrap/cache public/storage 2>/dev/null || true; apache2-foreground"]
