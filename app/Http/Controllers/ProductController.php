@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -29,18 +28,19 @@ class ProductController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $shop = $this->sellerShop($request);
+
         $validated = $this->validateProduct($request);
 
         if ($request->hasFile('image')) {
-            $imageUrl = Cloudinary::uploadApi()->upload($request->file('image')->getRealPath(), [
-                'folder' => 'produits'
-            ])->getSecurePath();
-            $validated['image'] = $imageUrl;
+            $path = Storage::disk('s3')->put('products', fopen($request->file('image')->getRealPath(), 'r'));
+            $validated['image'] = $this->supabasePublicUrl($path);
         }
 
         $shop->products()->create($validated);
 
-        return redirect()->route('products.index')->with('success', 'Product created successfully.');
+        return redirect()
+            ->route('products.index')
+            ->with('success', 'Product created successfully.');
     }
 
     public function edit(Request $request, Product $product): View
@@ -53,26 +53,26 @@ class ProductController extends Controller
     public function update(Request $request, Product $product): RedirectResponse
     {
         $this->authorizeProduct($request, $product);
+
         $validated = $this->validateProduct($request);
 
         if ($request->hasFile('image')) {
-            // Supprimer l'ancienne image Cloudinary si elle existe
-            if ($product->image && str_contains($product->image, 'cloudinary.com')) {
-                $publicId = $this->extractCloudinaryPublicId($product->image);
-                if ($publicId) {
-                    Cloudinary::uploadApi()->destroy($publicId);
+            if ($product->image) {
+                $oldPath = $this->extractSupabasePath($product->image);
+                if ($oldPath) {
+                    Storage::disk('s3')->delete($oldPath);
                 }
             }
 
-            $imageUrl = Cloudinary::uploadApi()->upload($request->file('image')->getRealPath(), [
-                'folder' => 'produits'
-            ])->getSecurePath();
-            $validated['image'] = $imageUrl;
+            $path = Storage::disk('s3')->put('products', fopen($request->file('image')->getRealPath(), 'r'));
+            $validated['image'] = $this->supabasePublicUrl($path);
         }
 
         $product->update($validated);
 
-        return redirect()->route('products.index')->with('success', 'Product updated successfully.');
+        return redirect()
+            ->route('products.index')
+            ->with('success', 'Product updated successfully.');
     }
 
     public function destroy(Request $request, Product $product): RedirectResponse
@@ -80,19 +80,17 @@ class ProductController extends Controller
         $this->authorizeProduct($request, $product);
 
         if ($product->image) {
-            if (str_contains($product->image, 'cloudinary.com')) {
-                $publicId = $this->extractCloudinaryPublicId($product->image);
-                if ($publicId) {
-                    Cloudinary::uploadApi()->destroy($publicId);
-                }
-            } else {
-                Storage::disk('public')->delete($product->image);
+            $oldPath = $this->extractSupabasePath($product->image);
+            if ($oldPath) {
+                Storage::disk('s3')->delete($oldPath);
             }
         }
 
         $product->delete();
 
-        return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
+        return redirect()
+            ->route('products.index')
+            ->with('success', 'Product deleted successfully.');
     }
 
     private function validateProduct(Request $request): array
@@ -116,16 +114,28 @@ class ProductController extends Controller
 
     private function authorizeProduct(Request $request, Product $product): void
     {
-        abort_if($product->shop_id !== $this->sellerShop($request)->id, 403);
+        abort_if(
+            $product->shop_id !== $this->sellerShop($request)->id,
+            403
+        );
     }
 
-    private function extractCloudinaryPublicId(string $url): ?string
+    private function extractSupabasePath(string $url): ?string
     {
-        // URL format: https://res.cloudinary.com/{cloud_name}/image/upload/{transformations}/{public_id}
-        $pattern = '/\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z]+$/';
-        if (preg_match($pattern, $url, $matches)) {
-            return $matches[1];
+        $endpoint = rtrim(str_replace('/storage/v1', '', env('AWS_ENDPOINT')), '/');
+        $prefix = $endpoint . '/storage/v1/object/public/' . env('AWS_BUCKET') . '/';
+
+        if (str_starts_with($url, $prefix)) {
+            return substr($url, strlen($prefix));
         }
+
         return null;
+    }
+
+    private function supabasePublicUrl(string $path): string
+    {
+        $endpoint = rtrim(str_replace('/storage/v1', '', env('AWS_ENDPOINT')), '/');
+
+        return $endpoint . '/storage/v1/object/public/' . env('AWS_BUCKET') . '/' . ltrim($path, '/');
     }
 }

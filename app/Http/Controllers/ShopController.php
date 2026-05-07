@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Shop;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -47,10 +46,8 @@ class ShopController extends Controller
         $validated['slug'] = $this->uniqueSlug($validated['name']);
 
         if ($request->hasFile('logo')) {
-            $logoUrl = Cloudinary::uploadApi()->upload($request->file('logo')->getRealPath(), [
-                'folder' => 'shops'
-            ])->getSecurePath();
-            $validated['logo'] = $logoUrl;
+            $path = Storage::disk('s3')->put('shops', fopen($request->file('logo')->getRealPath(), 'r'));
+            $validated['logo'] = $this->supabasePublicUrl($path);
         }
 
         Shop::create($validated);
@@ -75,18 +72,15 @@ class ShopController extends Controller
         $validated['slug'] = $this->uniqueSlug($validated['name'], $shop);
 
         if ($request->hasFile('logo')) {
-            // Supprimer l'ancien logo Cloudinary si existe
-            if ($shop->logo && str_contains($shop->logo, 'cloudinary.com')) {
-                $publicId = $this->extractCloudinaryPublicId($shop->logo);
-                if ($publicId) {
-                    Cloudinary::uploadApi()->destroy($publicId);
+            if ($shop->logo) {
+                $oldPath = $this->extractSupabasePath($shop->logo);
+                if ($oldPath) {
+                    Storage::disk('s3')->delete($oldPath);
                 }
             }
 
-            $logoUrl = Cloudinary::uploadApi()->upload($request->file('logo')->getRealPath(), [
-                'folder' => 'shops'
-            ])->getSecurePath();
-            $validated['logo'] = $logoUrl;
+            $path = Storage::disk('s3')->put('shops', fopen($request->file('logo')->getRealPath(), 'r'));
+            $validated['logo'] = $this->supabasePublicUrl($path);
         }
 
         $shop->update($validated);
@@ -129,13 +123,22 @@ class ShopController extends Controller
         return $slug;
     }
 
-    private function extractCloudinaryPublicId(string $url): ?string
+    private function extractSupabasePath(string $url): ?string
     {
-        // URL format: https://res.cloudinary.com/{cloud_name}/image/upload/{transformations}/{public_id}
-        $pattern = '/\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z]+$/';
-        if (preg_match($pattern, $url, $matches)) {
-            return $matches[1];
+        $endpoint = rtrim(str_replace('/storage/v1', '', env('AWS_ENDPOINT')), '/');
+        $prefix = $endpoint . '/storage/v1/object/public/' . env('AWS_BUCKET') . '/';
+
+        if (str_starts_with($url, $prefix)) {
+            return substr($url, strlen($prefix));
         }
+
         return null;
+    }
+
+    private function supabasePublicUrl(string $path): string
+    {
+        $endpoint = rtrim(str_replace('/storage/v1', '', env('AWS_ENDPOINT')), '/');
+
+        return $endpoint . '/storage/v1/object/public/' . env('AWS_BUCKET') . '/' . ltrim($path, '/');
     }
 }
