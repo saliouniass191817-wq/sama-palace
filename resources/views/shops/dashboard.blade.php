@@ -17,7 +17,7 @@
         <div class="app-card p-3 p-md-4 mb-4">
             <div class="d-flex flex-column flex-sm-row gap-3 align-items-sm-center">
                 @if ($shop->logo)
-                    <img class="shop-logo" src="{{ Illuminate\Support\Facades\Storage::url($shop->logo) }}" alt="{{ $shop->name }}">
+                    <img class="shop-logo w-full h-auto object-cover" src="{{ $shop->logo }}" alt="{{ $shop->name }}">
                 @else
                     <div class="shop-logo d-flex align-items-center justify-content-center fw-bold fs-4">{{ strtoupper(substr($shop->name, 0, 1)) }}</div>
                 @endif

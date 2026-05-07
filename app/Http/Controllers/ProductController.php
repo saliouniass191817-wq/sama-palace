@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -31,7 +32,10 @@ class ProductController extends Controller
         $validated = $this->validateProduct($request);
 
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('produits', 'public');
+            $imageUrl = Cloudinary::upload($request->file('image')->getRealPath(), [
+                'folder' => 'produits'
+            ])->getSecurePath();
+            $validated['image'] = $imageUrl;
         }
 
         $shop->products()->create($validated);
@@ -52,11 +56,18 @@ class ProductController extends Controller
         $validated = $this->validateProduct($request);
 
         if ($request->hasFile('image')) {
-            if ($product->image) {
-                Storage::disk('public')->delete($product->image);
+            // Supprimer l'ancienne image Cloudinary si elle existe
+            if ($product->image && str_contains($product->image, 'cloudinary.com')) {
+                $publicId = $this->extractCloudinaryPublicId($product->image);
+                if ($publicId) {
+                    Cloudinary::destroy($publicId);
+                }
             }
 
-            $validated['image'] = $request->file('image')->store('produits', 'public');
+            $imageUrl = Cloudinary::upload($request->file('image')->getRealPath(), [
+                'folder' => 'produits'
+            ])->getSecurePath();
+            $validated['image'] = $imageUrl;
         }
 
         $product->update($validated);
@@ -69,7 +80,14 @@ class ProductController extends Controller
         $this->authorizeProduct($request, $product);
 
         if ($product->image) {
-            Storage::disk('public')->delete($product->image);
+            if (str_contains($product->image, 'cloudinary.com')) {
+                $publicId = $this->extractCloudinaryPublicId($product->image);
+                if ($publicId) {
+                    Cloudinary::destroy($publicId);
+                }
+            } else {
+                Storage::disk('public')->delete($product->image);
+            }
         }
 
         $product->delete();
@@ -83,7 +101,7 @@ class ProductController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'price' => ['required', 'numeric', 'min:0'],
             'description' => ['nullable', 'string', 'max:1000'],
-            'image' => ['nullable', 'image', 'max:2048'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
     }
 
@@ -99,5 +117,15 @@ class ProductController extends Controller
     private function authorizeProduct(Request $request, Product $product): void
     {
         abort_if($product->shop_id !== $this->sellerShop($request)->id, 403);
+    }
+
+    private function extractCloudinaryPublicId(string $url): ?string
+    {
+        // URL format: https://res.cloudinary.com/{cloud_name}/image/upload/{transformations}/{public_id}
+        $pattern = '/\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z]+$/';
+        if (preg_match($pattern, $url, $matches)) {
+            return $matches[1];
+        }
+        return null;
     }
 }

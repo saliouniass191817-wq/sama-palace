@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Shop;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -46,7 +47,10 @@ class ShopController extends Controller
         $validated['slug'] = $this->uniqueSlug($validated['name']);
 
         if ($request->hasFile('logo')) {
-            $validated['logo'] = $request->file('logo')->store('shops', 'public');
+            $logoUrl = Cloudinary::upload($request->file('logo')->getRealPath(), [
+                'folder' => 'shops'
+            ])->getSecurePath();
+            $validated['logo'] = $logoUrl;
         }
 
         Shop::create($validated);
@@ -71,11 +75,18 @@ class ShopController extends Controller
         $validated['slug'] = $this->uniqueSlug($validated['name'], $shop);
 
         if ($request->hasFile('logo')) {
-            if ($shop->logo) {
-                Storage::disk('public')->delete($shop->logo);
+            // Supprimer l'ancien logo Cloudinary si existe
+            if ($shop->logo && str_contains($shop->logo, 'cloudinary.com')) {
+                $publicId = $this->extractCloudinaryPublicId($shop->logo);
+                if ($publicId) {
+                    Cloudinary::destroy($publicId);
+                }
             }
 
-            $validated['logo'] = $request->file('logo')->store('shops', 'public');
+            $logoUrl = Cloudinary::upload($request->file('logo')->getRealPath(), [
+                'folder' => 'shops'
+            ])->getSecurePath();
+            $validated['logo'] = $logoUrl;
         }
 
         $shop->update($validated);
@@ -96,7 +107,7 @@ class ShopController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
             'phone' => ['required', 'string', 'max:30'],
-            'logo' => ['nullable', 'image', 'max:2048'],
+            'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
     }
 
@@ -116,5 +127,15 @@ class ShopController extends Controller
         }
 
         return $slug;
+    }
+
+    private function extractCloudinaryPublicId(string $url): ?string
+    {
+        // URL format: https://res.cloudinary.com/{cloud_name}/image/upload/{transformations}/{public_id}
+        $pattern = '/\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z]+$/';
+        if (preg_match($pattern, $url, $matches)) {
+            return $matches[1];
+        }
+        return null;
     }
 }
