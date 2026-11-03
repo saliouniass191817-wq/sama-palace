@@ -32,15 +32,16 @@ Do not begin this step until the old database has been backed up and the owner c
 
 Use a one-time `pgloader` data-only import into a separate staging Supabase project first, or export/import individual tables with CSV and PostgreSQL `COPY`. Load parent tables before dependents: `users`, then `shops`, then `products`, then `clicks`; load `sessions` after `users`. Other cache and queue tables can be imported only if their transient contents matter. Convert date/time values consistently to UTC and retain decimal product prices exactly.
 
-After import, reset each auto-increment sequence (`users`, `shops`, `products`, `clicks`, and `failed_jobs`) with `setval(pg_get_serial_sequence(...), MAX(id), true)`; use `setval(..., 1, false)` for an empty table. Compare source and target row counts table by table, check foreign-key orphans, and test sign-in and seller flows before switching traffic. Keep an export and the old database until this verification is complete.
+After import, reset each auto-increment sequence (`users`, `shops`, `products`, `clicks`, `jobs`, and `failed_jobs`) with `setval(pg_get_serial_sequence(...), MAX(id), true)`; use `setval(..., 1, false)` for an empty table. Compare source and target row counts table by table, check foreign-key orphans, and test sign-in and seller flows before switching traffic. Keep an export and the old database until this verification is complete.
 
 ## Deployment order
 
-1. Keep the current MySQL service and database untouched. Confirm whether its data must be preserved and take a provider backup/export before cutover.
-2. Add the PostgreSQL variables to Render using **Save only**, so the current running image is not restarted before it contains the PostgreSQL driver.
-3. Deploy the reviewed code that installs `pdo_pgsql` and listens on Render's `PORT` (default `10000`). On container start, it gives each PostgreSQL connection up to five seconds and retries `php artisan migrate --force` up to three times, then starts Apache even if the database is temporarily unreachable.
-4. Verify the migration log and application health before directing users to the new database. Do not run the demo seeder in production.
-5. Keep the previous MySQL database and its connection details available until data counts and the main application flows have been checked.
+1. Keep the current MySQL database untouched. Take a backup/export and record row counts before cutover.
+2. Apply Laravel migrations to the empty Supabase schema and import the MySQL data. Pause writes during the final export/import window so no records are lost between the snapshot and the switch.
+3. Verify row counts, sequences, foreign keys, RLS, and the main application flows while the old database remains available.
+4. Add the production variables in this document to Render using **Save only**. This avoids restarting the current image before the replacement image includes `pdo_pgsql`.
+5. Deploy the reviewed code that installs `pdo_pgsql` and listens on Render's `PORT` (default `10000`). On container start, it gives each PostgreSQL connection up to five seconds and retries `php artisan migrate --force` up to three times, then starts Apache even if the database is temporarily unreachable. Do not run the demo seeder in production.
+6. Verify deployment logs and the application flows, then reopen writes. Keep the previous MySQL database and export available through the rollback window.
 
 Render starts a new deployment when the code is deployed; its environment-variable page also offers **Save only**, which applies saved values on a later deploy. Schedule the cutover with the Render service settings and the availability of the old database in mind.
 
