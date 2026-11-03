@@ -12,6 +12,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->foreignId('shop_id')->constrained()->cascadeOnDelete();
+            $table->index('product_id');
+            $table->index('shop_id');
             $table->string('ip_address', 45)->nullable();
             $table->timestamp('created_at')->useCurrent();
         });

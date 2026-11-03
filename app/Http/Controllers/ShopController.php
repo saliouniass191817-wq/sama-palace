@@ -102,7 +102,11 @@ class ShopController extends Controller
 
     public function show(string $slug): View
     {
-        $shop = Shop::with('products')->where('slug', $slug)->firstOrFail();
+        $shop = Shop::with(['products' => fn ($query) => $query
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')])
+            ->where('slug', $slug)
+            ->firstOrFail();
 
         return view('shops.show', compact('shop'));
     }

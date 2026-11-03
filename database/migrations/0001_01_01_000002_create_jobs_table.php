@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -15,10 +16,10 @@ return new class extends Migration
             $table->id();
             $table->string('queue')->index();
             $table->longText('payload');
-            $table->unsignedTinyInteger('attempts');
-            $table->unsignedInteger('reserved_at')->nullable();
-            $table->unsignedInteger('available_at');
-            $table->unsignedInteger('created_at');
+            $table->smallInteger('attempts');
+            $table->bigInteger('reserved_at')->nullable();
+            $table->bigInteger('available_at');
+            $table->bigInteger('created_at');
         });
 
         Schema::create('job_batches', function (Blueprint $table) {
@@ -43,6 +44,13 @@ return new class extends Migration
             $table->longText('exception');
             $table->timestamp('failed_at')->useCurrent();
         });
+
+        if (DB::connection()->getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE jobs ADD CONSTRAINT jobs_attempts_unsigned_range CHECK (attempts BETWEEN 0 AND 255)');
+            DB::statement('ALTER TABLE jobs ADD CONSTRAINT jobs_reserved_at_unsigned_range CHECK (reserved_at IS NULL OR reserved_at BETWEEN 0 AND 4294967295)');
+            DB::statement('ALTER TABLE jobs ADD CONSTRAINT jobs_available_at_unsigned_range CHECK (available_at BETWEEN 0 AND 4294967295)');
+            DB::statement('ALTER TABLE jobs ADD CONSTRAINT jobs_created_at_unsigned_range CHECK (created_at BETWEEN 0 AND 4294967295)');
+        }
     }
 
     /**
