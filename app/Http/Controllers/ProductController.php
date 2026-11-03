@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SaveProductRequest;
 use App\Models\Product;
+use App\Support\PublicMedia;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
+use RuntimeException;
 
 class ProductController extends Controller
 {
@@ -20,23 +23,30 @@ class ProductController extends Controller
 
     public function create(Request $request): View
     {
-        $this->sellerShop($request);
+        Gate::authorize('create', Product::class);
 
         return view('products.create');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(SaveProductRequest $request): RedirectResponse
     {
-        $shop = $this->sellerShop($request);
-
-        $validated = $this->validateProduct($request);
+        $shop = $request->user()->shop;
+        $validated = $request->validated();
 
         if ($request->hasFile('image')) {
-            $path = Storage::disk('s3')->put('products', fopen($request->file('image')->getRealPath(), 'r'));
-            $validated['image'] = $this->supabasePublicUrl($path);
-        }
+            PublicMedia::storeAndPersist(
+                $request->file('image'),
+                'products',
+                'image',
+                function (string $path) use ($shop, $validated) {
+                    $validated['image'] = $path;
 
-        $shop->products()->create($validated);
+                    return $shop->products()->create($validated);
+                },
+            );
+        } else {
+            $shop->products()->create($validated);
+        }
 
         return redirect()
             ->route('products.index')
@@ -45,30 +55,30 @@ class ProductController extends Controller
 
     public function edit(Request $request, Product $product): View
     {
-        $this->authorizeProduct($request, $product);
+        Gate::authorize('update', $product);
 
         return view('products.edit', compact('product'));
     }
 
-    public function update(Request $request, Product $product): RedirectResponse
+    public function update(SaveProductRequest $request, Product $product): RedirectResponse
     {
-        $this->authorizeProduct($request, $product);
-
-        $validated = $this->validateProduct($request);
+        $validated = $request->validated();
 
         if ($request->hasFile('image')) {
-            if ($product->image) {
-                $oldPath = $this->extractSupabasePath($product->image);
-                if ($oldPath) {
-                    Storage::disk('s3')->delete($oldPath);
-                }
-            }
+            PublicMedia::storeAndPersist(
+                $request->file('image'),
+                'products',
+                'image',
+                function (string $path) use ($product, $validated) {
+                    $validated['image'] = $path;
 
-            $path = Storage::disk('s3')->put('products', fopen($request->file('image')->getRealPath(), 'r'));
-            $validated['image'] = $this->supabasePublicUrl($path);
+                    return $product->update($validated);
+                },
+                $product->image,
+            );
+        } elseif (! $product->update($validated)) {
+            throw new RuntimeException('The product could not be updated.');
         }
-
-        $product->update($validated);
 
         return redirect()
             ->route('products.index')
@@ -77,30 +87,17 @@ class ProductController extends Controller
 
     public function destroy(Request $request, Product $product): RedirectResponse
     {
-        $this->authorizeProduct($request, $product);
+        Gate::authorize('delete', $product);
 
-        if ($product->image) {
-            $oldPath = $this->extractSupabasePath($product->image);
-            if ($oldPath) {
-                Storage::disk('s3')->delete($oldPath);
-            }
+        if (! $product->delete()) {
+            throw new RuntimeException('The product could not be deleted.');
         }
 
-        $product->delete();
+        PublicMedia::delete($product->image);
 
         return redirect()
             ->route('products.index')
             ->with('success', 'Product deleted successfully.');
-    }
-
-    private function validateProduct(Request $request): array
-    {
-        return $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'description' => ['nullable', 'string', 'max:1000'],
-            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-        ]);
     }
 
     private function sellerShop(Request $request)
@@ -110,32 +107,5 @@ class ProductController extends Controller
         abort_if(! $shop, 403, 'Create your shop before adding products.');
 
         return $shop;
-    }
-
-    private function authorizeProduct(Request $request, Product $product): void
-    {
-        abort_if(
-            $product->shop_id !== $this->sellerShop($request)->id,
-            403
-        );
-    }
-
-    private function extractSupabasePath(string $url): ?string
-    {
-        $endpoint = rtrim(str_replace('/storage/v1', '', env('AWS_ENDPOINT')), '/');
-        $prefix = $endpoint . '/storage/v1/object/public/' . env('AWS_BUCKET') . '/';
-
-        if (str_starts_with($url, $prefix)) {
-            return substr($url, strlen($prefix));
-        }
-
-        return null;
-    }
-
-    private function supabasePublicUrl(string $path): string
-    {
-        $endpoint = rtrim(str_replace('/storage/v1', '', env('AWS_ENDPOINT')), '/');
-
-        return $endpoint . '/storage/v1/object/public/' . env('AWS_BUCKET') . '/' . ltrim($path, '/');
     }
 }

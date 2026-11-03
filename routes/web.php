@@ -15,7 +15,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
     Route::post('/register', [RegisteredUserController::class, 'store']);
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('/login', [AuthenticatedSessionController::class, 'store']);
+    Route::post('/login', [AuthenticatedSessionController::class, 'store'])->middleware('throttle:5,1');
 });
 
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
@@ -23,7 +23,7 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->name('logout');
 
 Route::middleware('auth')->group(function () {
-    
+
     Route::get('/dashboard', [ShopController::class, 'dashboard'])->name('dashboard');
     Route::get('/shops', fn () => redirect()->route('dashboard'))->name('shops.index');
     Route::get('/shops/create', [ShopController::class, 'create'])->name('shops.create');
@@ -35,4 +35,6 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/shop/{slug}', [ShopController::class, 'show'])->name('shops.public');
-Route::get('/order/{product}/whatsapp', WhatsAppOrderController::class)->name('orders.whatsapp');
+Route::get('/order/{product}/whatsapp', WhatsAppOrderController::class)
+    ->middleware('throttle:30,1')
+    ->name('orders.whatsapp');

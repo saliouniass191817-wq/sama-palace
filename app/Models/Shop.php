@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\PublicMedia;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -38,5 +39,10 @@ class Shop extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function getLogoUrlAttribute(): ?string
+    {
+        return PublicMedia::url($this->logo);
     }
 }

@@ -15,11 +15,11 @@
 
                 <div class="mb-3">
                     <label class="form-label">Numéro de téléphone</label>
-                    <input class="form-control" name="phone" value="{{ old('phone') }}" placeholder="+221771234567" required autofocus>
+                    <input class="form-control" id="login-phone" aria-label="Numéro de téléphone" name="phone" value="{{ old('phone') }}" placeholder="+221771234567" required autofocus>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Mot de passe</label>
-                    <input class="form-control" type="password" name="password" required>
+                    <label class="form-label" for="login-password">Mot de passe</label>
+                    <input class="form-control" id="login-password" type="password" name="password" required>
                 </div>
                 <div class="form-check mb-4">
                     <input class="form-check-input" type="checkbox" name="remember" value="1" id="remember">

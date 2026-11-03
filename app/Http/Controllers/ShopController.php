@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SaveShopRequest;
 use App\Models\Shop;
+use App\Support\PublicMedia;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use RuntimeException;
 
 class ShopController extends Controller
 {
@@ -35,22 +37,30 @@ class ShopController extends Controller
         return view('shops.create');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(SaveShopRequest $request): RedirectResponse
     {
         if ($request->user()->shop) {
             return redirect()->route('shops.edit');
         }
 
-        $validated = $this->validateShop($request);
+        $validated = $request->validated();
         $validated['user_id'] = $request->user()->id;
         $validated['slug'] = $this->uniqueSlug($validated['name']);
 
         if ($request->hasFile('logo')) {
-            $path = Storage::disk('s3')->put('shops', fopen($request->file('logo')->getRealPath(), 'r'));
-            $validated['logo'] = $this->supabasePublicUrl($path);
-        }
+            PublicMedia::storeAndPersist(
+                $request->file('logo'),
+                'shops',
+                'logo',
+                function (string $path) use ($validated) {
+                    $validated['logo'] = $path;
 
-        Shop::create($validated);
+                    return Shop::create($validated);
+                },
+            );
+        } else {
+            Shop::create($validated);
+        }
 
         return redirect()->route('dashboard')->with('success', 'Shop created successfully.');
     }
@@ -63,27 +73,29 @@ class ShopController extends Controller
         return view('shops.edit', compact('shop'));
     }
 
-    public function update(Request $request): RedirectResponse
+    public function update(SaveShopRequest $request): RedirectResponse
     {
         $shop = $request->user()->shop;
         abort_if(! $shop, 404);
 
-        $validated = $this->validateShop($request, $shop);
+        $validated = $request->validated();
         $validated['slug'] = $this->uniqueSlug($validated['name'], $shop);
 
         if ($request->hasFile('logo')) {
-            if ($shop->logo) {
-                $oldPath = $this->extractSupabasePath($shop->logo);
-                if ($oldPath) {
-                    Storage::disk('s3')->delete($oldPath);
-                }
-            }
+            PublicMedia::storeAndPersist(
+                $request->file('logo'),
+                'shops',
+                'logo',
+                function (string $path) use ($shop, $validated) {
+                    $validated['logo'] = $path;
 
-            $path = Storage::disk('s3')->put('shops', fopen($request->file('logo')->getRealPath(), 'r'));
-            $validated['logo'] = $this->supabasePublicUrl($path);
+                    return $shop->update($validated);
+                },
+                $shop->logo,
+            );
+        } elseif (! $shop->update($validated)) {
+            throw new RuntimeException('The shop could not be updated.');
         }
-
-        $shop->update($validated);
 
         return redirect()->route('dashboard')->with('success', 'Shop updated successfully.');
     }
@@ -95,19 +107,9 @@ class ShopController extends Controller
         return view('shops.show', compact('shop'));
     }
 
-    private function validateShop(Request $request, ?Shop $shop = null): array
-    {
-        return $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:1000'],
-            'phone' => ['required', 'string', 'max:30'],
-            'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-        ]);
-    }
-
     private function uniqueSlug(string $name, ?Shop $shop = null): string
     {
-        $baseSlug = Str::slug($name);
+        $baseSlug = Str::slug($name) ?: 'shop';
         $slug = $baseSlug;
         $counter = 2;
 
@@ -116,29 +118,10 @@ class ShopController extends Controller
                 ->when($shop, fn ($query) => $query->whereKeyNot($shop->id))
                 ->exists()
         ) {
-            $slug = $baseSlug . '-' . $counter;
+            $slug = $baseSlug.'-'.$counter;
             $counter++;
         }
 
         return $slug;
-    }
-
-    private function extractSupabasePath(string $url): ?string
-    {
-        $endpoint = rtrim(str_replace('/storage/v1', '', env('AWS_ENDPOINT')), '/');
-        $prefix = $endpoint . '/storage/v1/object/public/' . env('AWS_BUCKET') . '/';
-
-        if (str_starts_with($url, $prefix)) {
-            return substr($url, strlen($prefix));
-        }
-
-        return null;
-    }
-
-    private function supabasePublicUrl(string $path): string
-    {
-        $endpoint = rtrim(str_replace('/storage/v1', '', env('AWS_ENDPOINT')), '/');
-
-        return $endpoint . '/storage/v1/object/public/' . env('AWS_BUCKET') . '/' . ltrim($path, '/');
     }
 }

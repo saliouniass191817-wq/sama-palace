@@ -6,8 +6,8 @@
 
 <div class="card product-card border-0">
     <div class="product-image-wrap">
-        @if ($product->image)
-            <img class="card-img-top product-image w-full h-auto object-cover" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
+        @if ($imageUrl = $product->image_url)
+            <img class="card-img-top product-image w-full h-auto object-cover" src="{{ $imageUrl }}" alt="{{ $product->name }}">
         @else
             <div class="product-placeholder">
                 <span class="fw-semibold">Pas d'image disponible</span>

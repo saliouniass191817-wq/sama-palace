@@ -148,14 +148,14 @@ a:hover {
 .btn-whatsapp {
     background: #25d366;
     border-color: #25d366;
-    color: #ffffff;
+    color: #052d17;
     font-weight: 700;
 }
 
 .btn-whatsapp:hover {
     background: #1fb457;
     border-color: #1fb457;
-    color: #ffffff;
+    color: #052d17;
 }
 
 .form-control,
@@ -177,7 +177,7 @@ a:hover {
 }
 
 .section-kicker {
-    color: var(--mc-success);
+    color: #15803d;
     font-size: 0.78rem;
     font-weight: 800;
     letter-spacing: 0.08em;
