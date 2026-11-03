@@ -2,6 +2,8 @@
 
 set -u
 
+export PGCONNECT_TIMEOUT="${PGCONNECT_TIMEOUT:-5}"
+
 port="${PORT:-10000}"
 
 case "$port" in

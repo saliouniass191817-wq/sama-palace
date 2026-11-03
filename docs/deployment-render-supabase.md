@@ -38,7 +38,7 @@ After import, reset each auto-increment sequence (`users`, `shops`, `products`, 
 
 1. Keep the current MySQL service and database untouched. Confirm whether its data must be preserved and take a provider backup/export before cutover.
 2. Add the PostgreSQL variables to Render using **Save only**, so the current running image is not restarted before it contains the PostgreSQL driver.
-3. Deploy the reviewed code that installs `pdo_pgsql` and listens on Render's `PORT` (default `10000`). On container start, it retries `php artisan migrate --force` up to three times, then starts Apache even if the database is temporarily unreachable.
+3. Deploy the reviewed code that installs `pdo_pgsql` and listens on Render's `PORT` (default `10000`). On container start, it gives each PostgreSQL connection up to five seconds and retries `php artisan migrate --force` up to three times, then starts Apache even if the database is temporarily unreachable.
 4. Verify the migration log and application health before directing users to the new database. Do not run the demo seeder in production.
 5. Keep the previous MySQL database and its connection details available until data counts and the main application flows have been checked.
 
