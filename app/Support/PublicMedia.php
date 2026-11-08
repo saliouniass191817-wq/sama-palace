@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use Illuminate\Filesystem\AwsS3V3Adapter as LaravelS3Adapter;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -16,7 +17,32 @@ class PublicMedia
     {
         // Supabase Storage controls public reads at the bucket level. Sending
         // an S3 object ACL (via Flysystem's `visibility` option) is unsupported.
-        $path = Storage::disk($disk)->putFile($directory, $file);
+        $storage = Storage::disk($disk);
+
+        if (! $storage instanceof LaravelS3Adapter) {
+            throw new RuntimeException('The configured media disk must use the S3 driver.');
+        }
+
+        $path = $file->hashName($directory);
+        $stream = fopen($file->getRealPath(), 'rb');
+
+        if ($stream === false) {
+            throw new RuntimeException('The uploaded file could not be read.');
+        }
+
+        try {
+            // Flysystem's S3 adapter always adds an ACL (private by default).
+            // Supabase Storage rejects x-amz-acl, so issue PutObject directly
+            // through the configured S3 client without an ACL parameter.
+            $storage->getClient()->putObject([
+                'Bucket' => config("filesystems.disks.{$disk}.bucket"),
+                'Key' => $path,
+                'Body' => $stream,
+                'ContentType' => $file->getMimeType() ?: 'application/octet-stream',
+            ]);
+        } finally {
+            fclose($stream);
+        }
 
         if (! is_string($path) || $path === '') {
             throw new RuntimeException('The file could not be stored.');

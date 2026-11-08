@@ -14,6 +14,7 @@ Configure these variables in the Render service environment. Enter secret values
 | `APP_DEBUG` | `false` |
 | `APP_URL` | `https://sama-palace.onrender.com` |
 | `SESSION_SECURE_COOKIE` | `true` |
+| `LOG_CHANNEL` | `stderr` |
 | `DB_CONNECTION` | `pgsql` |
 | `DB_HOST` | Exact Session pooler host copied from Supabase **Connect** |
 | `DB_PORT` | `5432` |
@@ -24,6 +25,10 @@ Configure these variables in the Render service environment. Enter secret values
 | `TRUSTED_PROXIES` | Optional Laravel trusted proxy list; leave unset to trust all proxies (`*`) when Render proxy IP ranges are not pinned |
 
 Keep the current `APP_KEY` unchanged if Render already has one. If it has never been configured, generate it once and store it as a Render secret before deploying; do not rotate it as part of ordinary deployments.
+
+For image uploads, enable the S3 protocol in Supabase Storage settings, and use the generated **S3 Access Key ID / Secret Access Key** (not the Supabase anon or service-role API keys). Copy the S3 endpoint and region exactly from the Supabase Storage S3 settings; the endpoint format is `https://<project-ref>.storage.supabase.co/storage/v1/s3`. `AWS_BUCKET` must exactly match an existing bucket name (for example, `products` if that is the bucket you created), and `AWS_USE_PATH_STYLE_ENDPOINT=true`. A public bucket permits public reads; it does not grant upload authorization by itself. Keep these credentials in Render secrets and out of Git or support messages.
+
+Set `LOG_CHANNEL=stderr` in Render so storage exceptions are visible in the service logs. The upload form intentionally shows a generic error; Laravel logs the sanitized exception under `Unable to store uploaded media.` to help identify the underlying S3 response.
 
 Laravel uses the `public` schema. The application also uses Supabase Storage through the existing `AWS_*` variables; keep those values unchanged during the database cutover.
 

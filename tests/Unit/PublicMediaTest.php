@@ -3,8 +3,10 @@
 namespace Tests\Unit;
 
 use App\Support\PublicMedia;
+use Illuminate\Filesystem\AwsS3V3Adapter as LaravelS3Adapter;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Mockery;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -31,8 +33,19 @@ class PublicMediaTest extends TestCase
 
     public function test_it_deletes_a_new_upload_when_persisting_its_record_fails(): void
     {
-        Storage::fake('s3');
         $uploadedPath = null;
+        $client = Mockery::mock();
+        $client->shouldReceive('putObject')->once();
+
+        $disk = Mockery::mock(LaravelS3Adapter::class);
+        $disk->shouldReceive('getClient')->andReturn($client);
+        $disk->shouldReceive('delete')
+            ->once()
+            ->with(Mockery::on(function (string $path) use (&$uploadedPath): bool {
+                return $path === $uploadedPath;
+            }));
+
+        Storage::shouldReceive('disk')->with('s3')->andReturn($disk);
 
         try {
             PublicMedia::storeAndPersist(
@@ -45,11 +58,12 @@ class PublicMediaTest extends TestCase
                     throw new RuntimeException('Database write failed.');
                 },
             );
-        } catch (RuntimeException) {
+        } catch (RuntimeException $exception) {
             // The original persistence error is rethrown after storage cleanup.
+            $this->assertSame('Database write failed.', $exception->getMessage());
         }
 
         $this->assertNotNull($uploadedPath);
-        Storage::disk('s3')->assertMissing($uploadedPath);
+        $disk->shouldHaveReceived('delete')->once();
     }
 }

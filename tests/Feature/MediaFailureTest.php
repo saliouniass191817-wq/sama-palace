@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Shop;
 use App\Models\User;
-use Illuminate\Filesystem\FilesystemAdapter;
+use Illuminate\Filesystem\AwsS3V3Adapter as LaravelS3Adapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -79,8 +79,11 @@ class MediaFailureTest extends TestCase
 
     private function makeStorageFail(): void
     {
-        $disk = \Mockery::mock(FilesystemAdapter::class);
-        $disk->shouldReceive('putFile')->once()->andReturn(false);
+        $client = \Mockery::mock();
+        $client->shouldReceive('putObject')->once()->andThrow(new \RuntimeException('S3 is unavailable.'));
+
+        $disk = \Mockery::mock(LaravelS3Adapter::class);
+        $disk->shouldReceive('getClient')->andReturn($client);
 
         Storage::shouldReceive('disk')->with('s3')->andReturn($disk);
     }

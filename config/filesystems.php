@@ -57,8 +57,8 @@ return [
             'public_url' => env('AWS_PUBLIC_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', true),
-            // Public access is controlled by the Supabase bucket. Do not send
-            // S3 ACL headers; Supabase Storage does not support object ACLs.
+            // Public access is controlled by the Supabase bucket. PublicMedia
+            // uploads through PutObject directly so no unsupported S3 ACL is sent.
             'throw' => true,
             'report' => false,
         ],
