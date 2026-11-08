@@ -23,7 +23,7 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 
 RUN composer install --no-dev --optimize-autoloader
 
-RUN npm install
+RUN npm ci
 RUN npm run build
 
 RUN mkdir -p storage/app/public \
