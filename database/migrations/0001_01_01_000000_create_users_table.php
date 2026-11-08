@@ -39,6 +39,7 @@ return new class extends Migration
         });
 
         if (DB::connection()->getDriverName() === 'pgsql') {
+            DB::statement('CREATE SCHEMA IF NOT EXISTS extensions');
             DB::statement('CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA extensions');
             DB::statement(<<<'SQL'
                 DO $$
