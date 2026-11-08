@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -13,9 +14,9 @@ class PublicMedia
 {
     public static function store(UploadedFile $file, string $directory, string $disk = 's3'): string
     {
-        $path = Storage::disk($disk)->putFile($directory, $file, [
-            'visibility' => 'public',
-        ]);
+        // Supabase Storage controls public reads at the bucket level. Sending
+        // an S3 object ACL (via Flysystem's `visibility` option) is unsupported.
+        $path = Storage::disk($disk)->putFile($directory, $file);
 
         if (! is_string($path) || $path === '') {
             throw new RuntimeException('The file could not be stored.');
@@ -28,7 +29,24 @@ class PublicMedia
     {
         try {
             return self::store($file, $directory, $disk);
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
+            $message = $exception->getMessage();
+
+            foreach (['key', 'secret'] as $credential) {
+                $value = config("filesystems.disks.{$disk}.{$credential}");
+
+                if (is_string($value) && $value !== '') {
+                    $message = str_replace($value, '[redacted]', $message);
+                }
+            }
+
+            Log::warning('Unable to store uploaded media.', [
+                'disk' => $disk,
+                'directory' => $directory,
+                'exception' => $exception::class,
+                'message' => $message,
+            ]);
+
             throw ValidationException::withMessages([
                 $field => 'Impossible de stocker cette image. Vérifiez la configuration du stockage.',
             ]);

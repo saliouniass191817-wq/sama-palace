@@ -57,8 +57,9 @@ return [
             'public_url' => env('AWS_PUBLIC_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', true),
-            'visibility' => 'public',
-            'throw' => false,
+            // Public access is controlled by the Supabase bucket. Do not send
+            // S3 ACL headers; Supabase Storage does not support object ACLs.
+            'throw' => true,
             'report' => false,
         ],
 
