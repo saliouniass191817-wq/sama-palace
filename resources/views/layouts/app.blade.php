@@ -8,6 +8,7 @@
     <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}?v=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
+    @vite('resources/css/app.css')
 </head>
 <body>
     <nav id="app-navbar" class="navbar navbar-expand-lg app-navbar sticky-top">

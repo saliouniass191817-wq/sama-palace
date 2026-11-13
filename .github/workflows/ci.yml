@@ -33,13 +33,13 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
+      - name: Build frontend assets
+        run: npm run build
+
       - name: Run PHP tests
         run: composer test
         env:
           APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
-
-      - name: Build frontend assets
-        run: npm run build
 
   postgres-migrations:
     name: PostgreSQL migration check
