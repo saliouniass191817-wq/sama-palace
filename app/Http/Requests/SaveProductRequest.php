@@ -28,7 +28,7 @@ class SaveProductRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'price' => ['required', 'numeric', 'min:0', 'max:99999999.99'],
+            'price' => ['required', 'integer', 'min:0', 'max:99999999'],
             'description' => ['nullable', 'string', 'max:1000'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ];

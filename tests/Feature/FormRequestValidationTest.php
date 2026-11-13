@@ -31,6 +31,26 @@ class FormRequestValidationTest extends TestCase
         $this->assertDatabaseCount('products', 0);
     }
 
+    public function test_product_request_rejects_fractional_fcfa_prices(): void
+    {
+        $user = User::factory()->create();
+        Shop::create([
+            'user_id' => $user->id,
+            'name' => 'Demo Shop',
+            'slug' => 'demo-shop',
+            'phone' => '+19995550123',
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('products.store'), [
+                'name' => 'Sample product',
+                'price' => '1250.50',
+            ])
+            ->assertSessionHasErrors('price');
+
+        $this->assertDatabaseCount('products', 0);
+    }
+
     public function test_product_request_rejects_a_price_above_the_decimal_column_limit(): void
     {
         $user = User::factory()->create();
@@ -44,31 +64,31 @@ class FormRequestValidationTest extends TestCase
         $this->actingAs($user)
             ->post(route('products.store'), [
                 'name' => 'Sac wax',
-                'price' => '100000000.00',
+                'price' => '100000000',
             ])
             ->assertSessionHasErrors('price');
 
         $this->assertDatabaseCount('products', 0);
     }
 
-    public function test_product_request_accepts_the_largest_decimal_column_value(): void
+    public function test_product_request_accepts_the_largest_fcfa_integer_price(): void
     {
         $user = User::factory()->create();
         Shop::create([
             'user_id' => $user->id,
             'name' => 'Demo Shop',
             'slug' => 'demo-shop',
-            'phone' => '+221770000000',
+            'phone' => '+19995550123',
         ]);
 
         $this->actingAs($user)
             ->post(route('products.store'), [
                 'name' => 'Sac wax',
-                'price' => '99999999.99',
+                'price' => '99999999',
             ])
             ->assertRedirect(route('products.index'));
 
-        $this->assertDatabaseHas('products', ['price' => '99999999.99']);
+        $this->assertDatabaseHas('products', ['price' => '99999999']);
     }
 
     public function test_shop_request_requires_a_contact_phone(): void

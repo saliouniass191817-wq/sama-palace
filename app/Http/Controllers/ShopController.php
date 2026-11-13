@@ -17,15 +17,31 @@ class ShopController extends Controller
     {
         $shop = $request->user()
             ->shop()
-            ->with(['products' => fn ($query) => $query->withCount('clicks')->latest()])
-            ->withCount('clicks')
+            ->withCount(['products', 'clicks'])
             ->first();
 
-        $mostClickedProduct = $shop?->products
-            ->sortByDesc('clicks_count')
-            ->firstWhere('clicks_count', '>', 0);
+        $products = collect();
+        $mostClickedProduct = null;
 
-        return view('shops.dashboard', compact('shop', 'mostClickedProduct'));
+        if ($shop) {
+            $products = $shop->products()
+                ->withCount('clicks')
+                ->orderByDesc('created_at')
+                ->orderByDesc('id')
+                ->paginate(12);
+
+            $mostClickedProduct = $shop->products()
+                ->withCount('clicks')
+                ->orderByDesc('clicks_count')
+                ->orderByDesc('id')
+                ->first();
+
+            if ($mostClickedProduct && $mostClickedProduct->clicks_count < 1) {
+                $mostClickedProduct = null;
+            }
+        }
+
+        return view('shops.dashboard', compact('shop', 'products', 'mostClickedProduct'));
     }
 
     public function create(Request $request): RedirectResponse|View
@@ -102,13 +118,13 @@ class ShopController extends Controller
 
     public function show(string $slug): View
     {
-        $shop = Shop::with(['products' => fn ($query) => $query
+        $shop = Shop::where('slug', $slug)->firstOrFail();
+        $products = $shop->products()
             ->orderByDesc('created_at')
-            ->orderByDesc('id')])
-            ->where('slug', $slug)
-            ->firstOrFail();
+            ->orderByDesc('id')
+            ->paginate(12);
 
-        return view('shops.show', compact('shop'));
+        return view('shops.show', compact('shop', 'products'));
     }
 
     private function uniqueSlug(string $name, ?Shop $shop = null): string

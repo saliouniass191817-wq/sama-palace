@@ -1,4 +1,5 @@
 *.log
+recent-laravel-log.txt
 .DS_Store
 .env
 .env.supabase

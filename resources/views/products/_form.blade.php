@@ -11,7 +11,7 @@
 <div class="mb-3">
     <label class="form-label" for="product-price">Prix</label>
     <div class="input-group">
-        <input class="form-control" id="product-price" type="number" name="price" min="0" step="0.01" value="{{ old('price', $product->price ?? '') }}" required>
+        <input class="form-control" id="product-price" type="number" name="price" min="0" step="1" value="{{ old('price', $product->price ?? '') }}" required>
         <span class="input-group-text">FCFA</span>
     </div>
 </div>

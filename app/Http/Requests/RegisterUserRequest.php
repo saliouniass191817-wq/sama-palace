@@ -12,7 +12,7 @@ class RegisterUserRequest extends FormRequest
         return [
             'firstName' => ['required', 'string', 'max:255'],
             'lastName' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:30', 'unique:users,phone'],
+            'phone' => ['required', 'string', 'max:30', 'regex:/^\\+[1-9][0-9]{7,14}$/', 'unique:users,phone'],
             'adress' => ['required', 'string', 'max:255'],
             'password' => ['required', 'confirmed', Password::min(8)],
         ];
