@@ -13,6 +13,17 @@ use RuntimeException;
 
 class ShopController extends Controller
 {
+    public function index(): View
+    {
+        $shops = Shop::query()
+            ->withCount('products')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->paginate(12);
+
+        return view('home', compact('shops'));
+    }
+
     public function dashboard(Request $request): View
     {
         $shop = $request->user()

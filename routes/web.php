@@ -8,9 +8,7 @@ use App\Http\Controllers\ShopController;
 use App\Http\Controllers\WhatsAppOrderController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return redirect()->route(auth()->check() ? 'dashboard' : 'login');
-})->name('home');
+Route::get('/', [ShopController::class, 'index'])->name('home');
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');

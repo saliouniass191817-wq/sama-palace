@@ -107,6 +107,22 @@ class CartWorkflowTest extends TestCase
             ->assertDontSeeText('Cliques whatsapp');
     }
 
+    public function test_cart_navigation_is_visible_to_visitors_but_hidden_from_sellers(): void
+    {
+        [$shop] = $this->createShopWithProduct('navigation-shop', 'Produit', 1000);
+        $cartUrl = route('cart.index');
+
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertSee('href="'.$cartUrl.'"', false)
+            ->assertSeeText('Panier');
+
+        $this->actingAs($shop->user)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertDontSee('href="'.$cartUrl.'"', false);
+    }
+
     /**
      * @return array{Shop, Product}
      */

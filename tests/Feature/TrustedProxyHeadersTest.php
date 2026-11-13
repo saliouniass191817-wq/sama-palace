@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class TrustedProxyHeadersTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_forwarded_host_and_scheme_do_not_override_the_request_origin(): void
     {
         $response = $this->withServerVariables([
@@ -16,7 +19,7 @@ class TrustedProxyHeadersTest extends TestCase
             'SERVER_PORT' => '80',
         ])->get('/');
 
-        $response->assertRedirect();
-        $this->assertStringNotContainsString('attacker.example', $response->headers->get('Location'));
+        $response->assertOk();
+        $this->assertStringNotContainsString('attacker.example', $response->getContent());
     }
 }

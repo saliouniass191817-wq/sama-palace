@@ -19,10 +19,6 @@
             </a>
 
             <div class="d-flex align-items-center gap-2">
-                @php($cartCount = array_sum(session('whatsapp_cart.items', [])))
-                <a class="btn btn-sm btn-outline-primary btn-custom" href="{{ route('cart.index') }}">
-                    Panier <span class="badge text-bg-light">{{ $cartCount }}</span>
-                </a>
                 @auth
                     <a class="btn btn-sm btn-outline-primary btn-custom" href="{{ route('dashboard') }}">Tableau de bord</a>
                     <form method="POST" action="{{ route('logout') }}">
@@ -30,6 +26,10 @@
                         <button class="btn btn-sm btn-dark btn-custom">Se déconnecter</button>
                     </form>
                 @else
+                    @php($cartCount = array_sum(session('whatsapp_cart.items', [])))
+                    <a class="btn btn-sm btn-outline-primary btn-custom" href="{{ route('cart.index') }}">
+                        Panier <span class="badge text-bg-light">{{ $cartCount }}</span>
+                    </a>
                     <a class="btn btn-sm btn-outline-primary btn-custom" href="{{ route('login') }}">Se connecter</a>
                     <a class="btn btn-sm btn-success btn-custom" href="{{ route('register') }}">S'inscrire</a>
                 @endauth
