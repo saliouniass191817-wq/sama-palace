@@ -57,7 +57,7 @@
             <div class="col-6 col-lg-4">
                 <div class="stat-card p-3 p-md-4">
                     <div class="text-muted-soft small fw-semibold">Produits</div>
-                    <div class="display-6 fw-bold mb-0">{{ $shop->products->count() }}</div>
+                    <div class="display-6 fw-bold mb-0">{{ $shop->products_count }}</div>
                 </div>
             </div>
             <div class="col-6 col-lg-4">
@@ -88,7 +88,7 @@
         </div>
 
         <div class="row g-3">
-            @forelse ($shop->products as $product)
+            @forelse ($products as $product)
                 <div class="col-12 col-sm-6">
                     <x-product-card :product="$product" context="seller" :show-clicks="true" />
                 </div>
@@ -98,6 +98,10 @@
                 </div>
             @endforelse
         </div>
+
+        @if ($products->hasPages())
+            <div class="mt-4">{{ $products->links() }}</div>
+        @endif
 
         <script>
             document.getElementById('copy-shop-url')?.addEventListener('click', async () => {

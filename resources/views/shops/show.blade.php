@@ -25,7 +25,7 @@
     </div>
 
     <div class="row g-3 g-md-4">
-        @forelse ($shop->products as $product)
+        @forelse ($products as $product)
             <div class="col-12 col-sm-6 col-lg-4" id="product-{{ $product->id }}">
                 <x-product-card :product="$product" context="public" />
             </div>
@@ -35,5 +35,9 @@
             </div>
         @endforelse
     </div>
+
+    @if ($products->hasPages())
+        <div class="mt-4">{{ $products->links() }}</div>
+    @endif
 </div>
 @endsection

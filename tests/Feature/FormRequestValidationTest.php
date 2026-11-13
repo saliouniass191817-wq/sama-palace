@@ -31,6 +31,26 @@ class FormRequestValidationTest extends TestCase
         $this->assertDatabaseCount('products', 0);
     }
 
+    public function test_product_edit_form_displays_integer_fcfa_prices_without_decimal_zeros(): void
+    {
+        $user = User::factory()->create();
+        $shop = Shop::create([
+            'user_id' => $user->id,
+            'name' => 'Demo Shop',
+            'slug' => 'demo-shop',
+            'phone' => '+221770000000',
+        ]);
+        $product = $shop->products()->create([
+            'name' => 'Sac wax',
+            'price' => 12000,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('products.edit', $product))
+            ->assertOk()
+            ->assertSee('id="product-price" type="number" name="price" min="0" step="1" value="12000"', false);
+    }
+
     public function test_product_request_rejects_fractional_fcfa_prices(): void
     {
         $user = User::factory()->create();

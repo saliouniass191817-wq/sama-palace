@@ -31,7 +31,7 @@ class MediaFailureTest extends TestCase
 
         $response = $this->actingAs($user)->put(route('products.update', $product), [
             'name' => $product->name,
-            'price' => $product->price,
+            'price' => (int) $product->price,
             'image' => $this->uploadedImage(),
         ]);
 
