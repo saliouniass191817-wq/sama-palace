@@ -1,7 +1,6 @@
 @props([
     'product',
     'context' => 'public',
-    'showClicks' => false,
 ])
 
 <div class="card product-card border-0">
@@ -23,13 +22,13 @@
 
         <p class="text-muted-soft small flex-grow-1 mb-3">{{ $product->description ?: 'Description coming soon.' }}</p>
 
-        @if ($showClicks)
-            <div class="small text-success fw-semibold mb-3">{{ $product->clicks_count ?? 0 }} Cliques whatsapp</div>
-        @endif
-
         @if ($context === 'public')
+            <form method="POST" action="{{ route('cart.products.store', $product) }}" class="mb-2">
+                @csrf
+                <button class="btn btn-success btn-custom w-100" type="submit">Ajouter au panier</button>
+            </form>
             <a class="btn btn-whatsapp btn-custom w-100" href="{{ route('orders.whatsapp', $product) }}">
-                Commander sur whatsapp
+                Commander ce produit seul
             </a>
         @else
             <a class="btn btn-outline-primary btn-custom w-100" href="{{ route('products.edit', $product) }}">

@@ -17,31 +17,19 @@ class ShopController extends Controller
     {
         $shop = $request->user()
             ->shop()
-            ->withCount(['products', 'clicks'])
+            ->withCount('products')
             ->first();
 
         $products = collect();
-        $mostClickedProduct = null;
 
         if ($shop) {
             $products = $shop->products()
-                ->withCount('clicks')
                 ->orderByDesc('created_at')
                 ->orderByDesc('id')
                 ->paginate(12);
-
-            $mostClickedProduct = $shop->products()
-                ->withCount('clicks')
-                ->orderByDesc('clicks_count')
-                ->orderByDesc('id')
-                ->first();
-
-            if ($mostClickedProduct && $mostClickedProduct->clicks_count < 1) {
-                $mostClickedProduct = null;
-            }
         }
 
-        return view('shops.dashboard', compact('shop', 'products', 'mostClickedProduct'));
+        return view('shops.dashboard', compact('shop', 'products'));
     }
 
     public function create(Request $request): RedirectResponse|View

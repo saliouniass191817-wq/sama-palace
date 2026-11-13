@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\WhatsAppOrderController;
@@ -35,6 +36,13 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/shop/{slug}', [ShopController::class, 'show'])->name('shops.public');
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/products/{product}', [CartController::class, 'store'])->name('cart.products.store');
+Route::patch('/cart/products/{product}', [CartController::class, 'update'])->name('cart.products.update');
+Route::delete('/cart/products/{product}', [CartController::class, 'destroy'])->name('cart.products.destroy');
+Route::post('/cart/checkout', [CartController::class, 'checkout'])
+    ->middleware('throttle:30,1')
+    ->name('cart.checkout');
 Route::get('/order/{product}/whatsapp', WhatsAppOrderController::class)
     ->middleware('throttle:30,1')
     ->name('orders.whatsapp');

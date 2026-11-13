@@ -54,27 +54,10 @@
         </div>
 
         <div class="row g-3 mb-4">
-            <div class="col-6 col-lg-4">
+            <div class="col-12 col-sm-6 col-lg-4">
                 <div class="stat-card p-3 p-md-4">
                     <div class="text-muted-soft small fw-semibold">Produits</div>
                     <div class="display-6 fw-bold mb-0">{{ $shop->products_count }}</div>
-                </div>
-            </div>
-            <div class="col-6 col-lg-4">
-                <div class="stat-card p-3 p-md-4">
-                    <div class="text-muted-soft small fw-semibold">Clics sur WhatsApp</div>
-                    <div class="display-6 fw-bold mb-0">{{ $shop->clicks_count }}</div>
-                </div>
-            </div>
-            <div class="col-12 col-lg-4">
-                <div class="stat-card p-3 p-md-4">
-                    <div class="text-muted-soft small fw-semibold">Produit le plus cliqué</div>
-                    <div class="h5 fw-bold mb-0">
-                        {{ $mostClickedProduct ? $mostClickedProduct->name : 'Aucun clic pour le moment' }}
-                    </div>
-                    @if ($mostClickedProduct)
-                        <div class="small text-success">{{ $mostClickedProduct->clicks_count }} cliques</div>
-                    @endif
                 </div>
             </div>
         </div>
@@ -90,7 +73,7 @@
         <div class="row g-3">
             @forelse ($products as $product)
                 <div class="col-12 col-sm-6">
-                    <x-product-card :product="$product" context="seller" :show-clicks="true" />
+                    <x-product-card :product="$product" context="seller" />
                 </div>
             @empty
                 <div class="col-12">

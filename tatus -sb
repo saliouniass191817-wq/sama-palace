@@ -1,0 +1,10 @@
+[33ma481758[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmigration-supabase[m[33m, [m[1;31morigin/migration-supabase[m[33m)[m fix fixtures
+[33m2bd0343[m fix fixtures
+[33mccf9f01[m fix fixtures
+[33m6c5fa69[m last fix
+[33mee7b730[m last fix
+[33mb84469e[m last fix
+[33mac70abc[m[33m ([m[1;31morigin/main[m[33m)[m fix(storage): omit unsupported Supabase S3 ACLs
+[33mb2bedec[m diagnostic complet
+[33mea2c61a[m fix: enable Supabase image uploads
+[33m4d13229[m fix: create extensions schema before citext

@@ -19,6 +19,10 @@
             </a>
 
             <div class="d-flex align-items-center gap-2">
+                @php($cartCount = array_sum(session('whatsapp_cart.items', [])))
+                <a class="btn btn-sm btn-outline-primary btn-custom" href="{{ route('cart.index') }}">
+                    Panier <span class="badge text-bg-light">{{ $cartCount }}</span>
+                </a>
                 @auth
                     <a class="btn btn-sm btn-outline-primary btn-custom" href="{{ route('dashboard') }}">Tableau de bord</a>
                     <form method="POST" action="{{ route('logout') }}">
