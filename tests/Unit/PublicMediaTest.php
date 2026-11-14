@@ -31,6 +31,24 @@ class PublicMediaTest extends TestCase
         );
     }
 
+    public function test_it_prefers_the_configured_public_url_for_stored_media(): void
+    {
+        config([
+            'filesystems.disks.s3.bucket' => 'micro-commerce',
+            'filesystems.disks.s3.endpoint' => 'https://project.supabase.co/storage/v1/s3',
+            'filesystems.disks.s3.public_url' => 'https://cdn.example.com/media',
+        ]);
+
+        $this->assertSame(
+            'https://cdn.example.com/media/products/image.jpg',
+            PublicMedia::url('products/image.jpg'),
+        );
+        $this->assertSame(
+            'https://cdn.example.com/media/products/image.jpg',
+            PublicMedia::url('https://project.supabase.co/storage/v1/object/public/micro-commerce/products/image.jpg'),
+        );
+    }
+
     public function test_it_deletes_a_new_upload_when_persisting_its_record_fails(): void
     {
         $uploadedPath = null;

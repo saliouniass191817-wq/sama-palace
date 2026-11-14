@@ -13,6 +13,7 @@ Configure these variables in the Render service environment. Enter secret values
 | `APP_ENV` | `production` |
 | `APP_DEBUG` | `false` |
 | `APP_URL` | `https://sama-palace.onrender.com` |
+| `SESSION_DRIVER` | `cookie` |
 | `SESSION_SECURE_COOKIE` | `true` |
 | `LOG_CHANNEL` | `stderr` |
 | `DB_CONNECTION` | `pgsql` |
@@ -46,7 +47,7 @@ After import, reset each auto-increment sequence (`users`, `shops`, `products`, 
 2. Apply Laravel migrations to the empty Supabase schema and import the MySQL data. Pause writes during the final export/import window so no records are lost between the snapshot and the switch.
 3. Verify row counts, sequences, foreign keys, RLS, and the main application flows while the old database remains available.
 4. Add the production variables in this document to Render using **Save only**. This avoids restarting the current image before the replacement image includes `pdo_pgsql`.
-5. Deploy the reviewed code that installs `pdo_pgsql` and listens on Render's `PORT` (default `10000`). On container start, it gives each PostgreSQL connection up to five seconds and retries `php artisan migrate --force` up to three times, then starts Apache even if the database is temporarily unreachable. Do not run the demo seeder in production.
+5. Deploy the reviewed PHP 8.4 image that installs `pdo_pgsql` and listens on Render's `PORT` (default `10000`). On container start, migrations run with `php artisan migrate --force --isolated`; if they fail, the container exits instead of starting Apache. Do not run the demo seeder in production.
 6. Verify deployment logs and the application flows, then reopen writes. Keep the previous MySQL database and export available through the rollback window.
 
 In Render's service settings, set **Health Check Path** to `/api/readyz`. This endpoint runs a simple database query and returns HTTP `200` only when Laravel can reach the configured database; it returns HTTP `503` while the database is unavailable. It uses Laravel's stateless API middleware so a database-backed session cannot fail before the readiness check runs. Keep the container start behavior independent of readiness: Apache starts even if migrations cannot reach the database, and Render can then report the instance unhealthy until the database recovers. The framework `/up` route only confirms the application process is serving requests and does not check database readiness.

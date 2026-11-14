@@ -9,16 +9,41 @@ permissions:
 
 jobs:
   tests-and-build:
-    name: PHP tests and frontend build
+    name: PostgreSQL tests and frontend build
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: micro_commerce_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d micro_commerce_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      APP_ENV: testing
+      APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: micro_commerce_test
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_URL: ''
+      DB_SSLMODE: prefer
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
-          extensions: mbstring, pdo_sqlite
+          php-version: '8.4'
+          extensions: mbstring, pdo_pgsql
           coverage: none
 
       - name: Set up Node.js
@@ -38,8 +63,10 @@ jobs:
 
       - name: Run PHP tests
         run: composer test
-        env:
-          APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+      - name: Check formatting
+        run: vendor/bin/pint --test
+      - name: Audit Composer dependencies
+        run: composer audit
 
   postgres-migrations:
     name: PostgreSQL migration check
@@ -75,7 +102,7 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.4'
           extensions: mbstring, pdo_pgsql
           coverage: none
 

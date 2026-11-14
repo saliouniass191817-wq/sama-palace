@@ -4,7 +4,7 @@ Micro Commerce is a Laravel storefront for shops and products. It uses PostgreSQ
 
 ## Requirements
 
-- PHP 8.2 or newer with the extensions required by Laravel and PostgreSQL (`pdo_pgsql`)
+- PHP 8.4 or newer with the extensions required by Laravel and PostgreSQL (`pdo_pgsql`)
 - Composer
 - Node.js 20 or newer and npm
 - PostgreSQL with the `citext` extension available
@@ -32,10 +32,10 @@ For frontend development with Vite, run `npm run dev` in a second terminal.
 
 Run the PHP test suite with `composer test`. The test configuration uses an in-memory SQLite database. Build production frontend assets with `npm run build`.
 
-GitHub Actions runs the PHP tests, builds the Vite assets, and applies all migrations against a temporary PostgreSQL service.
+GitHub Actions runs the PHP tests against PostgreSQL, checks Pint formatting and Composer advisories, builds the Vite assets, and applies all migrations against a temporary PostgreSQL service.
 
 ## Deployment
 
-The repository includes a Dockerfile for an Apache/PHP container. Build it with `docker build -t micro-commerce .`; the image installs PHP dependencies, runs `npm ci` and `npm run build`, and serves Laravel's `public` directory. Provide production environment variables at runtime, including `APP_KEY` and PostgreSQL connection settings. Run database migrations during deployment with `php artisan migrate --force`.
+The multi-stage Dockerfile builds frontend assets and Composer dependencies separately, then serves Laravel's `public` directory from PHP 8.4/Apache without Node in the final image. At startup, the entrypoint runs isolated migrations and optimizes the application; it exits without starting Apache if either step fails.
 
 See [docs/deployment-render-supabase.md](docs/deployment-render-supabase.md) for the Render and Supabase deployment notes.

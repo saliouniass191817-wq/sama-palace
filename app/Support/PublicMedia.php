@@ -131,6 +131,12 @@ class PublicMedia
             return null;
         }
 
+        if ($disk === 's3' && $path = self::path($value)) {
+            if ($publicUrl = self::s3PublicUrl($path)) {
+                return $publicUrl;
+            }
+        }
+
         if (self::isUrl($value)) {
             return $value;
         }

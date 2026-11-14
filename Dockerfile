@@ -1,40 +1,45 @@
-FROM php:8.2-apache
+FROM node:20 AS frontend-build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
 
-RUN apt-get update && apt-get install -y \
-    git unzip zip libzip-dev libpng-dev libonig-dev libxml2-dev libpq-dev curl gnupg \
-    && docker-php-ext-install pdo pdo_pgsql zip
+FROM php:8.4-cli AS composer-build
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libonig-dev libpq-dev libzip-dev unzip \
+    && docker-php-ext-install mbstring pdo_pgsql zip \
+    && rm -rf /var/lib/apt/lists/*
 
-# Node 20
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+WORKDIR /app
+ENV COMPOSER_ALLOW_SUPERUSER=1
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --prefer-dist --no-progress --no-scripts
+COPY . .
+RUN composer dump-autoload --no-dev --optimize --no-interaction
 
-RUN a2enmod rewrite
-RUN a2dismod mpm_event mpm_worker || true
-RUN a2enmod mpm_prefork
+FROM php:8.4-apache AS app
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libonig-dev libpq-dev libzip-dev \
+    && docker-php-ext-install mbstring pdo_pgsql zip \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+RUN a2enmod rewrite \
+    && (a2dismod mpm_event mpm_worker || true) \
+    && a2enmod mpm_prefork
 
 WORKDIR /var/www/html
 COPY . .
+COPY --from=composer-build /app/vendor ./vendor
+COPY --from=composer-build /app/bootstrap/cache/ ./bootstrap/cache/
+COPY --from=frontend-build /app/public/build ./public/build
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod 755 /usr/local/bin/docker-entrypoint.sh
-
-ENV COMPOSER_ALLOW_SUPERUSER=1
-
-RUN composer install --no-dev --optimize-autoloader
-
-RUN npm ci
-RUN npm run build
-
-RUN mkdir -p storage/app/public \
-    && php artisan storage:link --force
-
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 storage bootstrap/cache
-
-# IMPORTANT : pas de cache:clear ici
-RUN php artisan config:clear
-RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
+RUN chmod 755 /usr/local/bin/docker-entrypoint.sh \
+    && mkdir -p storage/app/public \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 755 storage bootstrap/cache \
+    && sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 
 EXPOSE 10000
 
