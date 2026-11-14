@@ -26,6 +26,30 @@ class RateLimitTest extends TestCase
         ])->assertTooManyRequests();
     }
 
+    public function test_login_rate_limit_is_scoped_to_phone_and_ip(): void
+    {
+        for ($attempt = 1; $attempt <= 5; $attempt++) {
+            $this->post(route('login'), [
+                'phone' => '+221770000000',
+                'password' => 'wrong-password',
+            ])->assertRedirect();
+        }
+
+        $this->post(route('login'), [
+            'phone' => '+221770000001',
+            'password' => 'wrong-password',
+        ])->assertRedirect();
+    }
+
+    public function test_registration_rejects_attempts_after_five_requests_in_one_minute(): void
+    {
+        for ($attempt = 1; $attempt <= 5; $attempt++) {
+            $this->post(route('register'), [])->assertSessionHasErrors();
+        }
+
+        $this->post(route('register'), [])->assertTooManyRequests();
+    }
+
     public function test_whatsapp_order_clicks_are_throttled_and_not_logged_after_the_limit(): void
     {
         $user = User::factory()->create();
