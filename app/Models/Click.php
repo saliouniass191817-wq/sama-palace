@@ -12,6 +12,7 @@ class Click extends Model
     protected $fillable = [
         'product_id',
         'shop_id',
+        'ip_address',
     ];
 
     public function product(): BelongsTo

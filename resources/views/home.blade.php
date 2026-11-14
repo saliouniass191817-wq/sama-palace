@@ -26,7 +26,7 @@
                         <img class="shop-logo w-full h-auto object-cover" src="{{ $logoUrl }}" alt="{{ $shop->name }}">
                     @else
                         <div class="shop-logo d-flex align-items-center justify-content-center fw-bold fs-4">
-                            {{ strtoupper(substr($shop->name, 0, 1)) }}
+                            {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($shop->name, 0, 1)) }}
                         </div>
                     @endif
 

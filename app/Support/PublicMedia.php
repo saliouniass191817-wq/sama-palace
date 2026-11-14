@@ -81,10 +81,20 @@ class PublicMedia
 
     public static function delete(?string $value, string $disk = 's3'): void
     {
-        $path = self::path($value);
+        try {
+            $path = self::path($value);
 
-        if ($path) {
-            Storage::disk($disk)->delete($path);
+            if ($path && ! Storage::disk($disk)->delete($path)) {
+                Log::warning('Unable to delete stored media.', [
+                    'disk' => $disk,
+                    'path' => $path,
+                ]);
+            }
+        } catch (Throwable $exception) {
+            Log::warning('Unable to delete stored media.', [
+                'disk' => $disk,
+                'exception' => $exception::class,
+            ]);
         }
     }
 

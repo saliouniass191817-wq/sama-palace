@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Filesystem\AwsS3V3Adapter as LaravelS3Adapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -65,6 +66,28 @@ class MediaFailureTest extends TestCase
             'logo' => 'shops/old-logo.png',
         ]);
         $disk->assertExists('shops/old-logo.png');
+    }
+
+    public function test_product_deletion_succeeds_when_media_cleanup_fails(): void
+    {
+        $user = User::factory()->create();
+        $shop = $this->createShop($user);
+        $product = $shop->products()->create([
+            'name' => 'Sac wax',
+            'price' => 12000,
+            'image' => 'products/image.png',
+        ]);
+
+        $disk = \Mockery::mock();
+        $disk->shouldReceive('delete')->once()->with('products/image.png')->andThrow(new \RuntimeException('S3 is unavailable.'));
+        Storage::shouldReceive('disk')->with('s3')->andReturn($disk);
+        Log::shouldReceive('warning')->once()->with('Unable to delete stored media.', \Mockery::type('array'));
+
+        $this->actingAs($user)
+            ->delete(route('products.destroy', $product))
+            ->assertRedirect(route('products.index'));
+
+        $this->assertDatabaseMissing('products', ['id' => $product->id]);
     }
 
     private function createShop(User $user, array $attributes = []): Shop

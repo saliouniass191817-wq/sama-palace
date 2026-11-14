@@ -35,4 +35,28 @@ class ShopAuthorizationTest extends TestCase
             'phone' => '+221770000000',
         ]);
     }
+
+    public function test_updating_the_shop_name_does_not_change_its_slug(): void
+    {
+        $user = User::factory()->create();
+        $shop = Shop::create([
+            'user_id' => $user->id,
+            'name' => 'Original Name',
+            'slug' => 'original-name',
+            'phone' => '+221770000000',
+        ]);
+
+        $this->actingAs($user)
+            ->put(route('shops.update'), [
+                'name' => 'Updated Name',
+                'phone' => $shop->phone,
+            ])
+            ->assertRedirect(route('dashboard'));
+
+        $this->assertDatabaseHas('shops', [
+            'id' => $shop->id,
+            'name' => 'Updated Name',
+            'slug' => 'original-name',
+        ]);
+    }
 }

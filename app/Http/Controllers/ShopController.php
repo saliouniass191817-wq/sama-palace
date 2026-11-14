@@ -94,7 +94,6 @@ class ShopController extends Controller
         abort_if(! $shop, 404);
 
         $validated = $request->validated();
-        $validated['slug'] = $this->uniqueSlug($validated['name'], $shop);
 
         if ($request->hasFile('logo')) {
             PublicMedia::storeAndPersist(
