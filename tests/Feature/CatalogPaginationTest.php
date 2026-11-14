@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Shop;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class CatalogPaginationTest extends TestCase
@@ -20,6 +21,25 @@ class CatalogPaginationTest extends TestCase
             ->assertSeeText('Catalog item 13')
             ->assertDontSeeText('Catalog item 01')
             ->assertSee('?page=2');
+    }
+
+    public function test_public_shop_can_display_the_next_page_of_products(): void
+    {
+        $shop = $this->createShopWithProducts('Catalog item');
+
+        $this->get(route('shops.public', ['slug' => $shop->slug, 'page' => 2]))
+            ->assertOk()
+            ->assertSeeText('Catalog item 01')
+            ->assertDontSeeText('Catalog item 13');
+    }
+
+    public function test_products_are_indexed_by_shop_id(): void
+    {
+        $indexes = Schema::getIndexes('products');
+
+        $this->assertTrue(collect($indexes)->contains(
+            fn (array $index) => $index['columns'] === ['shop_id'],
+        ));
     }
 
     public function test_seller_dashboard_paginates_products_but_keeps_the_total_count(): void
