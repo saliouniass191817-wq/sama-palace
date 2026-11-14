@@ -50,7 +50,7 @@ class ProductController extends Controller
 
         return redirect()
             ->route('products.index')
-            ->with('success', 'Product created successfully.');
+            ->with('success', __('messages.product.created'));
     }
 
     public function edit(Request $request, Product $product): View
@@ -77,12 +77,12 @@ class ProductController extends Controller
                 $product->image,
             );
         } elseif (! $product->update($validated)) {
-            throw new RuntimeException('The product could not be updated.');
+            throw new RuntimeException(__('messages.product.update_failed'));
         }
 
         return redirect()
             ->route('products.index')
-            ->with('success', 'Product updated successfully.');
+            ->with('success', __('messages.product.updated'));
     }
 
     public function destroy(Request $request, Product $product): RedirectResponse
@@ -90,21 +90,21 @@ class ProductController extends Controller
         Gate::authorize('delete', $product);
 
         if (! $product->delete()) {
-            throw new RuntimeException('The product could not be deleted.');
+            throw new RuntimeException(__('messages.product.delete_failed'));
         }
 
         PublicMedia::delete($product->image);
 
         return redirect()
             ->route('products.index')
-            ->with('success', 'Product deleted successfully.');
+            ->with('success', __('messages.product.deleted'));
     }
 
     private function sellerShop(Request $request)
     {
         $shop = $request->user()->shop;
 
-        abort_if(! $shop, 403, 'Create your shop before adding products.');
+        abort_if(! $shop, 403, __('messages.shop.create_first'));
 
         return $shop;
     }

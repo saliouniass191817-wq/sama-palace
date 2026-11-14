@@ -12,7 +12,7 @@
         @include('products._form', ['product' => $product])
     </form>
 
-    <form method="POST" action="{{ route('products.destroy', $product) }}" onsubmit="return confirm('Delete this product?')">
+    <form method="POST" action="{{ route('products.destroy', $product) }}" onsubmit="return confirm(@js(__('messages.product.delete_confirmation')))">
         @csrf
         @method('DELETE')
         <button class="btn btn-outline-danger btn-custom w-100">Supprimer le produit</button>

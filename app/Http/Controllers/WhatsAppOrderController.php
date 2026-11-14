@@ -28,7 +28,7 @@ class WhatsAppOrderController extends Controller
         $phone = preg_replace('/\D+/', '', $shop->phone);
         $productUrl = route('shops.public', $shop->slug).'#product-'.$product->id;
         $price = PriceFormatter::format($product->price).' FCFA';
-        $message = "Hello, I want to order: {$product->name} - Price: {$price}. Link: {$productUrl}";
+        $message = "Bonjour, je souhaite commander : {$product->name} - Prix : {$price}. Lien : {$productUrl}";
 
         return redirect()->away('https://wa.me/'.$phone.'?text='.rawurlencode($message));
     }

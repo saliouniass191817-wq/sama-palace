@@ -10,13 +10,13 @@
     <div class="form-text">
     Votre URL de boutique est générée automatiquement
         @isset($shop)
-            Current link: /shop/{{ $shop->slug }}
+            {{ __('messages.shop.current_link') }} /shop/{{ $shop->slug }}
         @endisset
     </div>
 </div>
 <div class="mb-3">
     <label class="form-label" for="shop-description">Description</label>
-    <textarea class="form-control" id="shop-description" name="description" rows="4" placeholder="What do you sell? Where can customers find you?">{{ old('description', $shop->description ?? '') }}</textarea>
+    <textarea class="form-control" id="shop-description" name="description" rows="4" placeholder="{{ __('messages.shop.description_placeholder') }}">{{ old('description', $shop->description ?? '') }}</textarea>
 </div>
 <div class="mb-3">
     <label class="form-label">Numéro WhatsApp</label>
@@ -24,7 +24,7 @@
 </div>
 <div class="mb-4">
     <label class="form-label" for="shop-logo">Logo</label>
-    <input class="form-control" id="shop-logo" type="file" name="logo" accept="image/*">
+    <input class="form-control" id="shop-logo" type="file" name="logo" accept="image/jpeg,image/png,image/webp">
 </div>
 
-<button class="btn btn-success btn-custom w-100 py-2">{{ isset($shop) ? 'Update shop' : 'Create shop' }}</button>
+<button class="btn btn-success btn-custom w-100 py-2">{{ isset($shop) ? __('messages.shop.button_update') : __('messages.shop.button_create') }}</button>

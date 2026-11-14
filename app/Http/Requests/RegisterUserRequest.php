@@ -30,7 +30,7 @@ class RegisterUserRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'phone.unique' => 'Impossible de créer un compte avec ces informations.',
+            'phone.unique' => __('messages.auth.registration_failed'),
         ];
     }
 }

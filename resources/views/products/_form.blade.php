@@ -6,7 +6,7 @@
 
 <div class="mb-3">
     <label class="form-label" for="product-name">Nom du produit</label>
-    <input class="form-control" id="product-name" name="name" value="{{ old('name', $product->name ?? '') }}" placeholder="Wax bag" required>
+    <input class="form-control" id="product-name" name="name" value="{{ old('name', $product->name ?? '') }}" placeholder="{{ __('messages.product.name_placeholder') }}" required>
 </div>
 <div class="mb-3">
     <label class="form-label" for="product-price">Prix</label>
@@ -21,7 +21,7 @@
 </div>
 <div class="mb-4">
     <label class="form-label" for="product-image">Image</label>
-    <input class="form-control" id="product-image" type="file" name="image" accept="image/*">
+    <input class="form-control" id="product-image" type="file" name="image" accept="image/jpeg,image/png,image/webp">
 </div>
 
 <button class="btn btn-success btn-custom w-100 py-2">{{ isset($product) ? 'Mettre à jour le produit' : 'Créer un produit' }}</button>

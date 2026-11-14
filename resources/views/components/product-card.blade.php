@@ -20,7 +20,7 @@
             <span class="badge rounded-pill text-bg-light border">{{ \App\Support\PriceFormatter::format($product->price) }} FCFA</span>
         </div>
 
-        <p class="text-muted-soft small flex-grow-1 mb-3">{{ $product->description ?: 'Description coming soon.' }}</p>
+        <p class="text-muted-soft small flex-grow-1 mb-3">{{ $product->description ?: __('messages.product.description_coming_soon') }}</p>
 
         @if ($context === 'public')
             <form method="POST" action="{{ route('cart.products.store', $product) }}" class="mb-2">
@@ -32,7 +32,7 @@
             </a>
         @else
             <a class="btn btn-outline-primary btn-custom w-100" href="{{ route('products.edit', $product) }}">
-                Editer le produit
+                {{ __('messages.product.edit') }}
             </a>
         @endif
     </div>

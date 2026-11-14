@@ -25,7 +25,7 @@
                 <div class="flex-grow-1">
                     <div class="section-kicker mb-1">Votre boutique</div>
                     <h1 class="h3 fw-bold mb-1">{{ $shop->name }}</h1>
-                    <p class="text-muted-soft mb-0">{{ $shop->description ?: 'Add a short description to build trust with buyers.' }}</p>
+                    <p class="text-muted-soft mb-0">{{ $shop->description ?: __('messages.shop.description_hint') }}</p>
                 </div>
             </div>
 
@@ -77,7 +77,7 @@
                 </div>
             @empty
                 <div class="col-12">
-                    <div class="app-card p-4 text-center text-muted-soft">No products yet.</div>
+                    <div class="app-card p-4 text-center text-muted-soft">{{ __('messages.shop.no_products') }}</div>
                 </div>
             @endforelse
         </div>

@@ -29,7 +29,7 @@ class PriceFormattingTest extends TestCase
         $response->assertRedirect();
 
         parse_str(parse_url($response->headers->get('Location'), PHP_URL_QUERY), $query);
-        $this->assertStringContainsString('Price: 1 250,50 FCFA.', $query['text']);
+        $this->assertStringContainsString('Prix : 1 250,50 FCFA.', $query['text']);
     }
 
     private function createShopWithFractionalPrice(): Shop

@@ -74,7 +74,7 @@ class PublicMedia
             ]);
 
             throw ValidationException::withMessages([
-                $field => 'Impossible de stocker cette image. Vérifiez la configuration du stockage.',
+                $field => __('messages.media.store_failed'),
             ]);
         }
     }

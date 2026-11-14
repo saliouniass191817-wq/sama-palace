@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -22,7 +22,7 @@ class AuthenticatedSessionController extends Controller
 
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()
-                ->withErrors(['phone' => 'The phone number or password is incorrect.'])
+                ->withErrors(['phone' => __('messages.auth.invalid_credentials')])
                 ->onlyInput('phone');
         }
 
@@ -38,6 +38,6 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')->with('success', 'You are logged out.');
+        return redirect()->route('login')->with('success', __('messages.auth.logged_out'));
     }
 }

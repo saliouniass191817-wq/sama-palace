@@ -25,7 +25,7 @@
                 <input class="form-control" id="register-phone" aria-label="Téléphone" name="phone" value="{{ old('phone') }}" placeholder="+221771234567" required>
             </div>
             <div class="col-12">
-                <label class="form-label">Addresse</label>
+                <label class="form-label">Adresse</label>
                 <input class="form-control" id="register-address" aria-label="Adresse" name="adress" value="{{ old('adress') }}" required>
             </div>
             <div class="col-md-6">
@@ -40,7 +40,7 @@
 
         <button class="btn btn-success btn-custom w-100 py-2 mt-4">Créer un compte</button>
         <p class="text-center text-muted-soft small mt-3 mb-0">
-            Déjà inscrit? <a href="{{ route('login') }}">Se connecter</a>
+            Déjà inscrit ? <a href="{{ route('login') }}">Se connecter</a>
         </p>
     </form>
 </div>

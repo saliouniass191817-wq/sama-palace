@@ -17,7 +17,7 @@ class LogoutTest extends TestCase
         $this->actingAs($user)
             ->post(route('logout'))
             ->assertRedirect(route('login'))
-            ->assertSessionHas('success', 'You are logged out.');
+            ->assertSessionHas('success', __('messages.auth.logged_out'));
 
         $this->assertGuest();
     }

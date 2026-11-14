@@ -46,7 +46,7 @@ class ShopController extends Controller
     public function create(Request $request): RedirectResponse|View
     {
         if ($request->user()->shop) {
-            return redirect()->route('shops.edit')->with('success', 'You already have a shop.');
+            return redirect()->route('shops.edit')->with('success', __('messages.shop.already_owned'));
         }
 
         return view('shops.create');
@@ -77,7 +77,7 @@ class ShopController extends Controller
             Shop::create($validated);
         }
 
-        return redirect()->route('dashboard')->with('success', 'Shop created successfully.');
+        return redirect()->route('dashboard')->with('success', __('messages.shop.created'));
     }
 
     public function edit(Request $request): View
@@ -108,10 +108,10 @@ class ShopController extends Controller
                 $shop->logo,
             );
         } elseif (! $shop->update($validated)) {
-            throw new RuntimeException('The shop could not be updated.');
+            throw new RuntimeException(__('messages.shop.update_failed'));
         }
 
-        return redirect()->route('dashboard')->with('success', 'Shop updated successfully.');
+        return redirect()->route('dashboard')->with('success', __('messages.shop.updated'));
     }
 
     public function show(string $slug): View

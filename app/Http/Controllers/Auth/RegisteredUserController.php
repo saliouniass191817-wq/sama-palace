@@ -26,6 +26,6 @@ class RegisteredUserController extends Controller
 
         return redirect()
             ->route('shops.create')
-            ->with('success', 'Inscription confirmee pour le numero '.$user->phone.'. Vous pouvez maintenant creer votre boutique.');
+            ->with('success', __('messages.auth.registration_confirmed', ['phone' => $user->phone]));
     }
 }

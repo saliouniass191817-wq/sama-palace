@@ -26,7 +26,7 @@ class CartController extends Controller
 
         if ($cart['shop'] && $cart['shop']->id !== $product->shop_id) {
             return back()->withErrors([
-                'cart' => 'Une commande ne peut contenir que des produits de la même boutique.',
+                'cart' => __('messages.cart.same_shop'),
             ]);
         }
 
@@ -34,7 +34,7 @@ class CartController extends Controller
 
         if ($quantity > self::MAX_QUANTITY) {
             return back()->withErrors([
-                'cart' => 'La quantité maximale par produit est de '.self::MAX_QUANTITY.'.',
+                'cart' => __('messages.cart.maximum_quantity', ['quantity' => self::MAX_QUANTITY]),
             ]);
         }
 
@@ -46,7 +46,7 @@ class CartController extends Controller
             'items' => $quantities,
         ]);
 
-        return back()->with('success', 'Produit ajouté au panier.');
+        return back()->with('success', __('messages.cart.added'));
     }
 
     public function update(Request $request, Product $product): RedirectResponse
@@ -62,7 +62,7 @@ class CartController extends Controller
             || ! array_key_exists($product->id, $cart['quantities'])
         ) {
             return redirect()->route('cart.index')->withErrors([
-                'cart' => 'Ce produit ne se trouve pas dans votre panier.',
+                'cart' => __('messages.cart.not_found'),
             ]);
         }
 
@@ -73,7 +73,7 @@ class CartController extends Controller
             'items' => $quantities,
         ]);
 
-        return redirect()->route('cart.index')->with('success', 'Panier mis à jour.');
+        return redirect()->route('cart.index')->with('success', __('messages.cart.updated'));
     }
 
     public function destroy(Request $request, Product $product): RedirectResponse
@@ -86,7 +86,7 @@ class CartController extends Controller
             || ! array_key_exists($product->id, $cart['quantities'])
         ) {
             return redirect()->route('cart.index')->withErrors([
-                'cart' => 'Ce produit ne se trouve pas dans votre panier.',
+                'cart' => __('messages.cart.not_found'),
             ]);
         }
 
@@ -102,7 +102,7 @@ class CartController extends Controller
             ]);
         }
 
-        return redirect()->route('cart.index')->with('success', 'Produit retiré du panier.');
+        return redirect()->route('cart.index')->with('success', __('messages.cart.removed'));
     }
 
     public function checkout(Request $request): RedirectResponse
@@ -111,7 +111,7 @@ class CartController extends Controller
 
         if (! $cart['shop'] || $cart['items'] === []) {
             return redirect()->route('cart.index')->withErrors([
-                'cart' => 'Votre panier est vide.',
+                'cart' => __('messages.cart.empty'),
             ]);
         }
 
