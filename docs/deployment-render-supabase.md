@@ -27,6 +27,22 @@ Configure these variables in the Render service environment. Enter secret values
 
 Keep the current `APP_KEY` unchanged if Render already has one. If it has never been configured, generate it once and store it as a Render secret before deploying; do not rotate it as part of ordinary deployments.
 
+## Administrator account
+
+The administrator uses the regular phone-and-password login form. Set `ADMIN_PHONE` to a dedicated E.164 phone number and `ADMIN_PASSWORD` to a password of at least 12 characters in Render's environment settings. Optionally set `ADMIN_FIRST_NAME`, `ADMIN_LAST_NAME`, and `ADMIN_ADDRESS`. Keep the password in Render as a secret; do not send or commit it.
+
+After the application migration has completed, create the administrator once from the Render Shell:
+
+```sh
+php artisan db:seed --class=AdminUserSeeder --force
+```
+
+The seeder is idempotent for an existing administrator and refuses to promote an existing seller account. It is intentionally not called by `DatabaseSeeder`; do not run the demo seeder in production. Administrators sign in at `/login` and are sent to `/admin`. The admin area can manage accounts, shops, and products; deleting a seller also deletes that seller's shop and products, so the interface requires confirmation. The last administrator and the current administrator cannot be deleted.
+
+## Visitor statistics
+
+The admin dashboard estimates unique visitors per day for the public storefront and each public shop page. It counts guest requests only, ignores common bot and prefetch requests, and uses an HMAC of the request IP and date; raw IP addresses are not stored. This is an estimate: people sharing an IP may count as one visitor, and a person whose IP changes may count more than once. Keep `APP_KEY` stable so daily hashes remain consistent.
+
 For image uploads, enable the S3 protocol in Supabase Storage settings, and use the generated **S3 Access Key ID / Secret Access Key** (not the Supabase anon or service-role API keys). Copy the S3 endpoint and region exactly from the Supabase Storage S3 settings; the endpoint format is `https://<project-ref>.storage.supabase.co/storage/v1/s3`. `AWS_BUCKET` must exactly match an existing bucket name (for example, `products` if that is the bucket you created), and `AWS_USE_PATH_STYLE_ENDPOINT=true`. A public bucket permits public reads; it does not grant upload authorization by itself. Keep these credentials in Render secrets and out of Git or support messages.
 
 Set `LOG_CHANNEL=stderr` in Render so storage exceptions are visible in the service logs. The upload form intentionally shows a generic error; Laravel logs the sanitized exception under `Unable to store uploaded media.` to help identify the underlying S3 response.

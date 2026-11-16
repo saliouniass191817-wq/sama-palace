@@ -26,14 +26,15 @@ class RegisterPhoneValidationTest extends TestCase
 
     public function test_registration_normalizes_phone_format_before_storing_it(): void
     {
-        $this->post(route('register'), [
+        $this->followingRedirects()->post(route('register'), [
             'firstName' => 'Awa',
             'lastName' => 'Diop',
             'phone' => '+221 (77) 000-00-00',
             'adress' => 'Dakar',
             'password' => 'secret-password',
             'password_confirmation' => 'secret-password',
-        ])->assertRedirect(route('shops.create'));
+        ])->assertOk()
+            ->assertSee('Veuillez remplir les informations de votre boutique');
 
         $this->assertDatabaseHas('users', ['phone' => '+221770000000']);
     }
@@ -61,9 +62,10 @@ class RegisterPhoneValidationTest extends TestCase
             'password' => 'secret-password',
         ]);
 
-        $this->post(route('login'), [
+        $this->followingRedirects()->post(route('login'), [
             'phone' => '+221 (77) 000-00-00',
             'password' => 'secret-password',
-        ])->assertRedirect(route('dashboard'));
+        ])->assertOk()
+            ->assertSeeText('Commencez à vendre en ligne');
     }
 }

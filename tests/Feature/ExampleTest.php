@@ -48,6 +48,7 @@ class ExampleTest extends TestCase
             ->get(route('home'))
             ->assertOk()
             ->assertSeeText('Ma boutique')
-            ->assertSee('href="'.route('dashboard').'"', false);
+            ->assertSee('href="'.route('dashboard').'"', false)
+            ->assertSee('aria-label="Navigation du pied de page"', false);
     }
 }

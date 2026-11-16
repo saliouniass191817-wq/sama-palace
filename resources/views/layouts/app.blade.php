@@ -10,7 +10,7 @@
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
     @vite('resources/css/app.css')
 </head>
-<body>
+<body class="d-flex min-vh-100 flex-column">
     <nav id="app-navbar" class="navbar navbar-expand-lg app-navbar sticky-top">
         <div class="container">
             <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="{{ route('home') }}">
@@ -20,7 +20,11 @@
 
             <div class="d-flex align-items-center gap-2">
                 @auth
-                    <a class="btn btn-sm btn-outline-primary btn-custom" href="{{ route('dashboard') }}">Tableau de bord</a>
+                    @if (auth()->user()->isAdmin())
+                        <a class="btn btn-sm btn-outline-primary btn-custom" href="{{ route('admin.dashboard') }}">Administration</a>
+                    @else
+                        <a class="btn btn-sm btn-outline-primary btn-custom" href="{{ route('dashboard') }}">Tableau de bord</a>
+                    @endif
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button class="btn btn-sm btn-dark btn-custom">Se déconnecter</button>
@@ -37,7 +41,7 @@
         </div>
     </nav>
 
-    <main class="container py-4 py-md-5">
+    <main class="container flex-grow-1 py-4 py-md-5">
         @if (session('success'))
             <div class="alert alert-success app-card border-0">{{ session('success') }}</div>
         @endif
@@ -55,6 +59,43 @@
 
         @yield('content')
     </main>
+
+    <footer class="app-footer mt-auto">
+        <div class="container py-4 py-md-5">
+            <div class="app-footer-panel p-4 p-md-5">
+                <div class="row align-items-center g-4">
+                    <div class="col-md-7">
+                        <a class="app-footer-brand d-inline-flex align-items-center gap-2 fw-bold" href="{{ route('home') }}">
+                            <span class="brand-dot"></span>
+                            Sama Palace
+                        </a>
+                        <p class="app-footer-description mb-0 mt-3">
+                            Découvrez les boutiques locales et partagez vos produits simplement.
+                        </p>
+                    </div>
+                    <div class="col-md-5">
+                        <nav class="app-footer-links d-flex flex-wrap gap-3 justify-content-md-end" aria-label="Navigation du pied de page">
+                            <a href="{{ route('home') }}">Accueil</a>
+                            @auth
+                                @if (auth()->user()->isAdmin())
+                                    <a href="{{ route('admin.dashboard') }}">Administration</a>
+                                @else
+                                    <a href="{{ route('dashboard') }}">Tableau de bord</a>
+                                @endif
+                            @else
+                                <a href="{{ route('login') }}">Se connecter</a>
+                                <a href="{{ route('register') }}">Créer un compte</a>
+                            @endauth
+                        </nav>
+                    </div>
+                </div>
+                <div class="app-footer-meta d-flex flex-column flex-sm-row justify-content-between gap-2 mt-4 pt-3">
+                    <span>&copy; {{ now()->year }} Sama Palace</span>
+                    <span>Le commerce local, simplement.</span>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <script>
         const navbar = document.getElementById('app-navbar');

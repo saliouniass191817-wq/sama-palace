@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Support\PriceFormatter;
+use App\Support\RequestAutomationDetector;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,7 @@ class WhatsAppOrderController extends Controller
         $product->load('shop');
         $shop = $product->shop;
 
-        if (! $this->isAutomatedRequest($request)) {
+        if (! RequestAutomationDetector::isAutomated($request)) {
             $ipAddress = $request->ip() ?? $request->server('REMOTE_ADDR');
 
             $product->clicks()->create([
@@ -33,17 +34,4 @@ class WhatsAppOrderController extends Controller
         return redirect()->away('https://wa.me/'.$phone.'?text='.rawurlencode($message));
     }
 
-    private function isAutomatedRequest(Request $request): bool
-    {
-        $userAgent = $request->userAgent() ?? '';
-
-        if (preg_match('/bot|crawler|spider|slurp|preview/i', $userAgent)) {
-            return true;
-        }
-
-        return preg_match('/prefetch|prerender/i', implode(' ', [
-            $request->header('Purpose', ''),
-            $request->header('Sec-Purpose', ''),
-        ])) === 1;
-    }
 }

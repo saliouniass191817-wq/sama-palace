@@ -55,6 +55,15 @@ class CatalogPaginationTest extends TestCase
             ->assertSee('?page=2');
     }
 
+    public function test_authenticated_seller_without_a_shop_can_view_the_dashboard(): void
+    {
+        $this->actingAs(User::factory()->create())
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSeeText('Créez une boutique simple')
+            ->assertSee('href="'.route('shops.create').'"', false);
+    }
+
     private function createShopWithProducts(string $prefix): Shop
     {
         $user = User::factory()->create();

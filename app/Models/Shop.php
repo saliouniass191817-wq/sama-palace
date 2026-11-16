@@ -36,6 +36,11 @@ class Shop extends Model
         return $this->hasMany(Click::class);
     }
 
+    public function visitorVisits(): HasMany
+    {
+        return $this->hasMany(VisitorVisit::class);
+    }
+
     public function getRouteKeyName(): string
     {
         return 'slug';

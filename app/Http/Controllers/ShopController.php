@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SaveShopRequest;
 use App\Models\Shop;
 use App\Support\PublicMedia;
+use App\Support\VisitorTracker;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -13,8 +14,10 @@ use RuntimeException;
 
 class ShopController extends Controller
 {
-    public function index(): View
+    public function index(Request $request, VisitorTracker $visitorTracker): View
     {
+        $visitorTracker->record($request);
+
         $shops = Shop::query()
             ->withCount('products')
             ->orderByDesc('created_at')
@@ -114,9 +117,11 @@ class ShopController extends Controller
         return redirect()->route('dashboard')->with('success', __('messages.shop.updated'));
     }
 
-    public function show(string $slug): View
+    public function show(Request $request, VisitorTracker $visitorTracker, string $slug): View
     {
         $shop = Shop::where('slug', $slug)->firstOrFail();
+        $visitorTracker->record($request, $shop);
+
         $products = $shop->products()
             ->orderByDesc('created_at')
             ->orderByDesc('id')

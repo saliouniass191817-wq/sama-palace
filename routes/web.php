@@ -2,6 +2,10 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminShopController;
+use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ShopController;
@@ -31,6 +35,13 @@ Route::middleware('auth')->group(function () {
     Route::put('/shops', [ShopController::class, 'update'])->name('shops.update');
 
     Route::resource('products', ProductController::class)->except(['show']);
+});
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', AdminDashboardController::class)->name('dashboard');
+    Route::resource('users', AdminUserController::class)->except(['show']);
+    Route::resource('shops', AdminShopController::class)->except(['show']);
+    Route::resource('products', AdminProductController::class)->except(['show']);
 });
 
 Route::get('/shop/{slug}', [ShopController::class, 'show'])->name('shops.public');

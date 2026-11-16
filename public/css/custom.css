@@ -267,6 +267,45 @@ textarea {
     font-size: 0.9rem;
 }
 
+.app-footer-panel {
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 1.5rem;
+    color: #fff;
+    background:
+        radial-gradient(ellipse at 100% 0%, rgba(136, 124, 255, 0.35), transparent 22rem),
+        linear-gradient(135deg, #171a3a, #302770);
+    box-shadow: 0 18px 42px rgba(34, 29, 94, 0.2);
+}
+
+.app-footer-brand {
+    color: #fff;
+    font-size: 1.15rem;
+    letter-spacing: -0.035em;
+}
+
+.app-footer-brand:hover,
+.app-footer-links a:hover {
+    color: #c9c4ff;
+    text-decoration: none;
+}
+
+.app-footer-description,
+.app-footer-meta {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.app-footer-links a {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.app-footer-meta {
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    font-size: 0.8rem;
+}
+
 @media (max-width: 767.98px) {
     #app-navbar > .container {
         flex-wrap: wrap;
