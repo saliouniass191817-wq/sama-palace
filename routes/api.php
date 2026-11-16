@@ -22,7 +22,7 @@ Route::get('/readyz', function () {
         }
 
         return response('ready', 200);
-    } catch (\Throwable) {
+    } catch (Throwable) {
         return response('unavailable', 503);
     }
 })->name('health.ready');

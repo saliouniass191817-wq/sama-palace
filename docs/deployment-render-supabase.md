@@ -39,6 +39,26 @@ php artisan db:seed --class=AdminUserSeeder --force
 
 The seeder is idempotent for an existing administrator and refuses to promote an existing seller account. It is intentionally not called by `DatabaseSeeder`; do not run the demo seeder in production. Administrators sign in at `/login` and are sent to `/admin`. The admin area can manage accounts, shops, and products; deleting a seller also deletes that seller's shop and products, so the interface requires confirmation. The last administrator and the current administrator cannot be deleted.
 
+### If Render Shell is unavailable on the free plan
+
+You can grant administrator access through the Supabase SQL Editor instead:
+
+1. Wait until the Render deployment and database migrations have completed.
+2. Register your own account through the app at `/register`, using the phone number you will use to sign in.
+3. In the Supabase dashboard, open **SQL Editor** and run this query, replacing the example number with your registered phone number:
+
+   ```sql
+   UPDATE public.users
+   SET role = 'admin'
+   WHERE phone = '+221770000000'
+     AND role = 'seller'
+   RETURNING id, phone, role;
+   ```
+
+4. Confirm the result contains exactly your account and `role = admin`, then sign in at `/login` and open `/admin`.
+
+This does not require Render Shell or the `ADMIN_*` environment variables. Use only a phone number belonging to an account you control. If the query returns no rows, confirm that registration finished and that the phone number matches exactly; an account already marked as admin does not need updating.
+
 ## Visitor statistics
 
 The admin dashboard estimates unique visitors per day for the public storefront and each public shop page. It counts guest requests only, ignores common bot and prefetch requests, and uses an HMAC of the request IP and date; raw IP addresses are not stored. This is an estimate: people sharing an IP may count as one visitor, and a person whose IP changes may count more than once. Keep `APP_KEY` stable so daily hashes remain consistent.

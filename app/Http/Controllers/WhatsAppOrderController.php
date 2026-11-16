@@ -33,5 +33,4 @@ class WhatsAppOrderController extends Controller
 
         return redirect()->away('https://wa.me/'.$phone.'?text='.rawurlencode($message));
     }
-
 }

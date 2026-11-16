@@ -8,7 +8,6 @@ use App\Models\Shop;
 use App\Models\User;
 use App\Support\PublicMedia;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 use RuntimeException;
 
