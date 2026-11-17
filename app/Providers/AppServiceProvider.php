@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Policies\ProductPolicy;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
@@ -28,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::policy(Product::class, ProductPolicy::class);
+        TrustProxies::at(config('trustedproxy.proxies'));
 
         RateLimiter::for('login', function (Request $request) {
             $key = Str::transliterate(Str::lower($request->input('phone', '')).'|'.$request->ip());

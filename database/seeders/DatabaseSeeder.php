@@ -17,6 +17,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        if (! app()->environment(['local', 'testing'])) {
+            return;
+        }
+
         $user = User::factory()->create([
             'firstName' => 'Awa',
             'lastName' => 'Diop',

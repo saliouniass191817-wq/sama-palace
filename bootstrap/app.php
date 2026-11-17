@@ -19,7 +19,6 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->trustProxies(
-            at: env('TRUSTED_PROXIES', '*'),
             headers: HttpRequest::HEADER_X_FORWARDED_FOR,
         );
     })
