@@ -67,7 +67,7 @@ class PublicMediaTest extends TestCase
 
         try {
             PublicMedia::storeAndPersist(
-                UploadedFile::fake()->createWithContent('product.png', 'image contents'),
+                UploadedFile::fake()->createWithContent('product.png', $this->tinyPng()),
                 'products',
                 'image',
                 function (string $path) use (&$uploadedPath): bool {
@@ -83,5 +83,16 @@ class PublicMediaTest extends TestCase
 
         $this->assertNotNull($uploadedPath);
         $disk->shouldHaveReceived('delete')->once();
+    }
+
+    private function tinyPng(): string
+    {
+        $image = imagecreatetruecolor(1, 1);
+        ob_start();
+        imagepng($image);
+        $contents = ob_get_clean();
+        imagedestroy($image);
+
+        return $contents;
     }
 }

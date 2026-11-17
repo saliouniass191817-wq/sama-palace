@@ -10,8 +10,13 @@ class ReadinessTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_it_returns_ok_when_the_database_connection_and_migrations_are_ready(): void
+    public function test_it_returns_ok_when_the_database_connection_is_ready(): void
     {
+        DB::shouldReceive('select')
+            ->once()
+            ->with('select 1')
+            ->andReturn([]);
+
         $this->get('/api/readyz')
             ->assertOk()
             ->assertSeeText('ready');

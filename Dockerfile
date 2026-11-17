@@ -7,8 +7,9 @@ RUN npm run build
 
 FROM php:8.4-cli AS composer-build
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libonig-dev libpq-dev libzip-dev unzip \
-    && docker-php-ext-install mbstring pdo_pgsql zip \
+    libfreetype6-dev libjpeg62-turbo-dev libonig-dev libpng-dev libpq-dev libwebp-dev libzip-dev unzip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install gd mbstring pdo_pgsql zip \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -21,8 +22,9 @@ RUN composer dump-autoload --no-dev --optimize --no-interaction
 
 FROM php:8.4-apache AS app
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libonig-dev libpq-dev libzip-dev \
-    && docker-php-ext-install mbstring pdo_pgsql zip \
+    libfreetype6-dev libjpeg62-turbo-dev libonig-dev libpng-dev libpq-dev libwebp-dev libzip-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install gd mbstring pdo_pgsql zip \
     && rm -rf /var/lib/apt/lists/*
 
 RUN a2enmod rewrite \

@@ -23,7 +23,7 @@
             <div class="col-12 col-sm-6 col-lg-4">
                 <a class="app-card d-flex h-100 flex-column p-3 p-md-4" href="{{ route('shops.public', $shop->slug) }}">
                     @if ($logoUrl = $shop->logo_url)
-                        <img class="shop-logo w-full h-auto object-cover" src="{{ $logoUrl }}" alt="{{ $shop->name }}">
+                        <img class="shop-logo w-full h-auto object-cover" src="{{ $logoUrl }}" alt="{{ $shop->name }}" loading="lazy" width="512" height="512">
                     @else
                         <div class="shop-logo d-flex align-items-center justify-content-center fw-bold fs-4">
                             {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($shop->name, 0, 1)) }}

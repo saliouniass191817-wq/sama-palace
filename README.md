@@ -34,6 +34,12 @@ Run the PHP test suite with `composer test`. The test configuration uses an in-m
 
 GitHub Actions runs the PHP tests against PostgreSQL, checks Pint formatting and Composer advisories, builds the Vite assets, and applies all migrations against a temporary PostgreSQL service.
 
+## Sessions
+
+Production uses database-backed sessions (`SESSION_DRIVER=database`). The app schedules `sessions:prune-expired` daily; configure a Render Cron Job to run `php artisan schedule:run` every minute for Laravel's scheduled tasks to execute.
+
+As an alternative, set `SESSION_DRIVER=cookie` to keep the encrypted session payload in the browser rather than a database row. Cookie sessions avoid session-table writes but are limited by browser cookie size and are harder to revoke server-side.
+
 ## Deployment
 
 The multi-stage Dockerfile builds frontend assets and Composer dependencies separately, then serves Laravel's `public` directory from PHP 8.4/Apache without Node in the final image. At startup, the entrypoint runs isolated migrations and optimizes the application; it exits without starting Apache if either step fails.

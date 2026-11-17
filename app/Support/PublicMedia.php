@@ -24,11 +24,19 @@ class PublicMedia
         }
 
         $path = $file->hashName($directory);
-        $stream = fopen($file->getRealPath(), 'rb');
+        $image = self::prepareImage($file);
+        $stream = fopen('php://temp', 'w+b');
 
         if ($stream === false) {
-            throw new RuntimeException('The uploaded file could not be read.');
+            throw new RuntimeException('A temporary image stream could not be created.');
         }
+
+        if (fwrite($stream, $image) === false) {
+            fclose($stream);
+
+            throw new RuntimeException('The processed image could not be written.');
+        }
+        rewind($stream);
 
         try {
             // Flysystem's S3 adapter always adds an ACL (private by default).
@@ -49,6 +57,79 @@ class PublicMedia
         }
 
         return $path;
+    }
+
+    private static function prepareImage(UploadedFile $file): string
+    {
+        $mimeType = $file->getMimeType();
+        $encoder = match ($mimeType) {
+            'image/jpeg' => 'imagejpeg',
+            'image/png' => 'imagepng',
+            'image/webp' => 'imagewebp',
+            default => throw new RuntimeException('The uploaded image format is not supported.'),
+        };
+
+        if (! function_exists($encoder)) {
+            throw new RuntimeException('GD does not support the uploaded image format.');
+        }
+
+        $contents = file_get_contents($file->getRealPath());
+
+        if ($contents === false) {
+            throw new RuntimeException('The uploaded image could not be read.');
+        }
+
+        if (! function_exists('imagecreatefromstring')) {
+            throw new RuntimeException('GD is required to process uploaded images.');
+        }
+
+        $source = @imagecreatefromstring($contents);
+
+        if ($source === false) {
+            throw new RuntimeException('The uploaded image could not be decoded.');
+        }
+
+        $sourceWidth = imagesx($source);
+        $sourceHeight = imagesy($source);
+        $scale = min(1, 1200 / max($sourceWidth, $sourceHeight));
+        $width = max(1, (int) round($sourceWidth * $scale));
+        $height = max(1, (int) round($sourceHeight * $scale));
+        $processed = imagecreatetruecolor($width, $height);
+
+        if ($processed === false) {
+            imagedestroy($source);
+
+            throw new RuntimeException('The processed image could not be allocated.');
+        }
+
+        if ($mimeType !== 'image/jpeg') {
+            imagealphablending($processed, false);
+            imagesavealpha($processed, true);
+            imagefill($processed, 0, 0, imagecolorallocatealpha($processed, 0, 0, 0, 127));
+        }
+
+        if (! imagecopyresampled($processed, $source, 0, 0, 0, 0, $width, $height, $sourceWidth, $sourceHeight)) {
+            imagedestroy($source);
+            imagedestroy($processed);
+
+            throw new RuntimeException('The uploaded image could not be resized.');
+        }
+
+        ob_start();
+        $encoded = match ($mimeType) {
+            'image/jpeg' => imagejpeg($processed, null, 85),
+            'image/png' => imagepng($processed, null, 6),
+            'image/webp' => imagewebp($processed, null, 85),
+        };
+        $output = ob_get_clean();
+        imagedestroy($source);
+        imagedestroy($processed);
+
+        if (! $encoded || ! is_string($output)) {
+            throw new RuntimeException('The uploaded image could not be re-encoded.');
+        }
+
+        return $output;
     }
 
     public static function storeForForm(UploadedFile $file, string $directory, string $field, string $disk = 's3'): string

@@ -55,6 +55,24 @@ class CatalogPaginationTest extends TestCase
             ->assertSee('?page=2');
     }
 
+    public function test_seller_product_index_paginates_products(): void
+    {
+        $shop = $this->createShopWithProducts('Inventory item');
+
+        $this->actingAs($shop->user)
+            ->get(route('products.index'))
+            ->assertOk()
+            ->assertSeeText('Inventory item 13')
+            ->assertDontSeeText('Inventory item 01')
+            ->assertSee('?page=2');
+
+        $this->actingAs($shop->user)
+            ->get(route('products.index', ['page' => 2]))
+            ->assertOk()
+            ->assertSeeText('Inventory item 01')
+            ->assertDontSeeText('Inventory item 13');
+    }
+
     public function test_authenticated_seller_without_a_shop_can_view_the_dashboard(): void
     {
         $this->actingAs(User::factory()->create())

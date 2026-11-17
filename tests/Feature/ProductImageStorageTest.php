@@ -31,8 +31,13 @@ class ProductImageStorageTest extends TestCase
                 $this->assertSame('micro-commerce', $request['Bucket']);
                 $this->assertStringStartsWith('products/', $request['Key']);
                 $this->assertIsResource($request['Body']);
-                $this->assertSame('image/png', $request['ContentType']);
+                $this->assertSame('image/jpeg', $request['ContentType']);
                 $this->assertArrayNotHasKey('ACL', $request);
+                $processedImage = stream_get_contents($request['Body']);
+                $dimensions = getimagesizefromstring($processedImage);
+                $this->assertSame(1200, $dimensions[0]);
+                $this->assertSame(600, $dimensions[1]);
+                $this->assertStringNotContainsString('Exif', $processedImage);
 
                 return true;
             }));
@@ -55,9 +60,7 @@ class ProductImageStorageTest extends TestCase
                 'name' => 'Sac wax',
                 'price' => 12000,
                 'description' => 'Produit de test',
-                'image' => UploadedFile::fake()->createWithContent('sac.png', base64_decode(
-                    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII='
-                )),
+                'image' => UploadedFile::fake()->createWithContent('sac.jpg', $this->largeJpegWithExif()),
             ]);
 
         $response->assertRedirect(route('products.index'));
@@ -70,5 +73,20 @@ class ProductImageStorageTest extends TestCase
             'https://project.storage.supabase.co/storage/v1/object/public/micro-commerce/'.$product->image,
             $product->image_url
         );
+    }
+
+    private function largeJpegWithExif(): string
+    {
+        $image = imagecreatetruecolor(1600, 800);
+        ob_start();
+        imagejpeg($image);
+        $jpeg = ob_get_clean();
+        imagedestroy($image);
+
+        $tiff = "II*\0".pack('V', 8).pack('v', 0).pack('V', 0);
+        $exif = "Exif\0\0".$tiff;
+        $segment = "\xFF\xE1".pack('n', strlen($exif) + 2).$exif;
+
+        return substr($jpeg, 0, 2).$segment.substr($jpeg, 2);
     }
 }

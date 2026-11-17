@@ -16,7 +16,10 @@ class ProductController extends Controller
     public function index(Request $request): View
     {
         $shop = $this->sellerShop($request);
-        $products = $shop->products()->latest()->get();
+        $products = $shop->products()
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->paginate(12);
 
         return view('products.index', compact('shop', 'products'));
     }

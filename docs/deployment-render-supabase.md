@@ -13,7 +13,7 @@ Configure these variables in the Render service environment. Enter secret values
 | `APP_ENV` | `production` |
 | `APP_DEBUG` | `false` |
 | `APP_URL` | `https://sama-palace.onrender.com` |
-| `SESSION_DRIVER` | `cookie` |
+| `SESSION_DRIVER` | `database` |
 | `SESSION_SECURE_COOKIE` | `true` |
 | `LOG_CHANNEL` | `stderr` |
 | `DB_CONNECTION` | `pgsql` |
@@ -87,6 +87,8 @@ After import, reset each auto-increment sequence (`users`, `shops`, `products`, 
 6. Verify deployment logs and the application flows, then reopen writes. Keep the previous MySQL database and export available through the rollback window.
 
 In Render's service settings, set **Health Check Path** to `/api/readyz`. This endpoint runs a simple database query and returns HTTP `200` only when Laravel can reach the configured database; it returns HTTP `503` while the database is unavailable. It uses Laravel's stateless API middleware so a database-backed session cannot fail before the readiness check runs. Keep the container start behavior independent of readiness: Apache starts even if migrations cannot reach the database, and Render can then report the instance unhealthy until the database recovers. The framework `/up` route only confirms the application process is serving requests and does not check database readiness.
+
+The app schedules expired database-session cleanup daily. Configure a Render Cron Job to run `php artisan schedule:run` every minute; the scheduler invokes `sessions:prune-expired` and removes rows older than `SESSION_LIFETIME`.
 
 Laravel trusts forwarded host, scheme, and client IP headers from `TRUSTED_PROXIES`. The optional `TRUSTED_PROXIES` environment variable accepts Laravel's supported proxy value, such as `*` or a comma-separated list of trusted IPs/CIDRs. When unset, it defaults to `*` to preserve the current Render forwarded-IP behavior, including client IP based rate limits. Set an explicit list only when you have the complete proxy ranges for the deployment; an incomplete list can cause Laravel to read the proxy address instead of the client IP.
 
