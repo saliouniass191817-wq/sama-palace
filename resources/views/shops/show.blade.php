@@ -1,5 +1,12 @@
 @extends('layouts.app')
 
+@php($previewProduct = $products->first())
+@section('title', $shop->name)
+@section('meta_title', $shop->name.' | '.config('app.name', 'Sama Palace'))
+@section('meta_description', \Illuminate\Support\Str::limit($shop->description ?: __('messages.ui.shop_description_public'), 200))
+@section('meta_image', $shop->logo_url ?: $previewProduct?->image_url ?: asset('images/logo.png'))
+@section('meta_price', $previewProduct ? number_format((float) $previewProduct->price, 2, '.', '') : '')
+
 @section('content')
 <div class="container-storefront mx-auto">
     <div class="app-card p-3 p-md-5 mb-4">
@@ -10,7 +17,7 @@
                 <div class="shop-logo d-flex align-items-center justify-content-center fw-bold fs-4">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($shop->name, 0, 1)) }}</div>
             @endif
             <div>
-                <div class="section-kicker mb-1">Boutique en ligne</div>
+                <div class="section-kicker mb-1">{{ __('messages.ui.shop_description_public') }}</div>
                 <h1 class="display-6 fw-bold mb-2">{{ $shop->name }}</h1>
                 <p class="text-muted-soft mb-0">{{ $shop->description }}</p>
             </div>
@@ -19,8 +26,8 @@
 
     <div class="d-flex align-items-end justify-content-between gap-3 mb-3">
         <div>
-            <div class="section-kicker mb-1">Catalogue</div>
-            <h2 class="h4 fw-bold mb-0">Produits disponibles</h2>
+            <div class="section-kicker mb-1">{{ __('messages.ui.shop_catalogue') }}</div>
+            <h2 class="h4 fw-bold mb-0">{{ __('messages.ui.available_products') }}</h2>
         </div>
     </div>
 
@@ -31,7 +38,7 @@
             </div>
         @empty
             <div class="col-12">
-                <div class="app-card p-4 text-center text-muted-soft">Aucun produit disponible pour le moment.</div>
+                <div class="app-card p-4 text-center text-muted-soft">{{ __('messages.ui.no_available_products') }}</div>
             </div>
         @endforelse
     </div>

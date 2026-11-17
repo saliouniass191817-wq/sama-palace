@@ -1,20 +1,22 @@
 @extends('layouts.app')
 
+@section('title', __('messages.ui.home_title'))
+
 @section('content')
 <div class="container-storefront mx-auto">
     <section class="app-card p-4 p-md-5 mb-4 text-center">
         <div class="section-kicker mb-2">Sama Palace</div>
-        <h1 class="display-5 fw-bold mb-3">Découvrez les boutiques</h1>
+        <h1 class="display-5 fw-bold mb-3">{{ __('messages.ui.home_title') }}</h1>
         <p class="text-muted-soft mb-3">
-            Parcourez les boutiques disponibles et trouvez les produits qui vous intéressent.
+            {{ __('messages.ui.home_intro') }}
         </p>
-        <div class="fw-semibold">{{ $shops->total() }} boutique(s) disponible(s)</div>
+        <div class="fw-semibold">{{ __('messages.ui.shops_available', ['count' => $shops->total()]) }}</div>
     </section>
 
     <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
         <div>
-            <div class="section-kicker mb-1">Catalogue</div>
-            <h2 class="h4 fw-bold mb-0">Toutes les boutiques</h2>
+            <div class="section-kicker mb-1">{{ __('messages.ui.catalogue') }}</div>
+            <h2 class="h4 fw-bold mb-0">{{ __('messages.ui.all_shops') }}</h2>
         </div>
     </div>
 
@@ -35,16 +37,16 @@
                         @if ($shop->description)
                             <p class="text-muted-soft mb-2">{{ \Illuminate\Support\Str::limit($shop->description, 120) }}</p>
                         @endif
-                        <div class="small text-muted-soft">{{ $shop->products_count }} produit(s)</div>
+                        <div class="small text-muted-soft">{{ __('messages.ui.product_count', ['count' => $shop->products_count]) }}</div>
                     </div>
 
-                    <span class="fw-semibold mt-auto pt-3">Découvrir la boutique</span>
+                    <span class="fw-semibold mt-auto pt-3">{{ __('messages.ui.discover_shop') }}</span>
                 </a>
             </div>
         @empty
             <div class="col-12">
                 <div class="app-card p-4 text-center text-muted-soft">
-                    Aucune boutique n'est encore disponible.
+                    {{ __('messages.ui.no_shops') }}
                 </div>
             </div>
         @endforelse

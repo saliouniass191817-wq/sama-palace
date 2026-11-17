@@ -1,13 +1,15 @@
 @extends('layouts.app')
 
+@section('title', __('messages.ui.nav_dashboard'))
+
 @section('content')
 <div class="container-narrow mx-auto">
     @if (! $shop)
         <div class="app-card p-4 p-md-5 text-center">
-            <div class="section-kicker mb-2">Votre boutique</div>
-            <h1 class="display-6 fw-bold mb-3">Commencez à vendre en ligne aujourd'hui</h1>
-            <p class="text-muted-soft mb-4">Créez une boutique simple, ajoutez des produits, et partagez votre lien prêt à l'emploi sur WhatsApp.</p>
-            <a class="btn btn-success btn-lg btn-custom" href="{{ route('shops.create') }}">Créer ma boutique</a>
+            <div class="section-kicker mb-2">{{ __('messages.ui.your_shop') }}</div>
+            <h1 class="display-6 fw-bold mb-3">{{ __('messages.ui.start_selling_title') }}</h1>
+            <p class="text-muted-soft mb-4">{{ __('messages.ui.start_selling_description') }}</p>
+            <a class="btn btn-success btn-lg btn-custom" href="{{ route('shops.create') }}">{{ __('messages.ui.create_my_shop') }}</a>
         </div>
     @else
         @php
@@ -23,7 +25,7 @@
                 @endif
 
                 <div class="flex-grow-1">
-                    <div class="section-kicker mb-1">Votre boutique</div>
+                    <div class="section-kicker mb-1">{{ __('messages.ui.your_shop') }}</div>
                     <h1 class="h3 fw-bold mb-1">{{ $shop->name }}</h1>
                     <p class="text-muted-soft mb-0">{{ $shop->description ?: __('messages.shop.description_hint') }}</p>
                 </div>
@@ -31,10 +33,10 @@
 
             <div class="row g-2 mt-4">
                 <div class="col-12 col-sm-6">
-                    <a class="btn btn-success btn-custom w-100" href="{{ $shopUrl }}" target="_blank">Ouvrir la boutique publique</a>
+                    <a class="btn btn-success btn-custom w-100" href="{{ $shopUrl }}" target="_blank">{{ __('messages.ui.open_public_shop') }}</a>
                 </div>
                 <div class="col-12 col-sm-6">
-                    <a class="btn btn-outline-primary btn-custom w-100" href="{{ route('shops.edit') }}">Modifier la boutique</a>
+                    <a class="btn btn-outline-primary btn-custom w-100" href="{{ route('shops.edit') }}">{{ __('messages.ui.edit_shop') }}</a>
                 </div>
             </div>
         </div>
@@ -42,21 +44,21 @@
         <div class="app-card p-3 p-md-4 mb-4">
             <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-md-between gap-2 mb-3">
                 <div>
-                    <div class="section-kicker mb-1">Partager le lien</div>
-                    <h2 class="h5 fw-bold mb-0">Envoyez votre boutique aux clients</h2>
+                    <div class="section-kicker mb-1">{{ __('messages.ui.share_link') }}</div>
+                    <h2 class="h5 fw-bold mb-0">{{ __('messages.ui.share_shop_to_customers') }}</h2>
                 </div>
             </div>
             <div class="input-group">
                 <input id="shop-url" class="form-control copy-input" value="{{ $shopUrl }}" readonly>
-                <button id="copy-shop-url" class="btn btn-outline-success btn-custom" type="button">Copier le lien</button>
+                <button id="copy-shop-url" class="btn btn-outline-success btn-custom" type="button">{{ __('messages.ui.copy_link') }}</button>
             </div>
-            <div id="copy-feedback" class="form-text text-success d-none">Lien copié.</div>
+            <div id="copy-feedback" class="form-text text-success d-none">{{ __('messages.ui.link_copied') }}</div>
         </div>
 
         <div class="row g-3 mb-4">
             <div class="col-12 col-sm-6 col-lg-4">
                 <div class="stat-card p-3 p-md-4">
-                    <div class="text-muted-soft small fw-semibold">Produits</div>
+                    <div class="text-muted-soft small fw-semibold">{{ __('messages.ui.products') }}</div>
                     <div class="display-6 fw-bold mb-0">{{ $shop->products_count }}</div>
                 </div>
             </div>
@@ -64,10 +66,10 @@
 
         <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
             <div>
-                <div class="section-kicker mb-1">Inventaire</div>
-                <h2 class="h4 fw-bold mb-0">Produits</h2>
+                <div class="section-kicker mb-1">{{ __('messages.ui.inventory') }}</div>
+                <h2 class="h4 fw-bold mb-0">{{ __('messages.ui.products') }}</h2>
             </div>
-            <a class="btn btn-success btn-custom" href="{{ route('products.create') }}">Ajouter un produit</a>
+            <a class="btn btn-success btn-custom" href="{{ route('products.create') }}">{{ __('messages.ui.add_product') }}</a>
         </div>
 
         <div class="row g-3">

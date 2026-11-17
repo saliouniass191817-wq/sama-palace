@@ -9,7 +9,7 @@
             <img class="card-img-top product-image w-full h-auto object-cover" src="{{ $imageUrl }}" alt="{{ $product->name }}" loading="lazy" width="1200" height="1200">
         @else
             <div class="product-placeholder">
-                <span class="fw-semibold">Pas d'image disponible</span>
+                <span class="fw-semibold">{{ __('messages.ui.no_image') }}</span>
             </div>
         @endif
     </div>
@@ -25,10 +25,10 @@
         @if ($context === 'public')
             <form method="POST" action="{{ route('cart.products.store', $product) }}" class="mb-2">
                 @csrf
-                <button class="btn btn-success btn-custom w-100" type="submit">Ajouter au panier</button>
+                <button class="btn btn-success btn-custom w-100" type="submit">{{ __('messages.ui.add_to_cart') }}</button>
             </form>
             <a class="btn btn-whatsapp btn-custom w-100" href="{{ route('orders.whatsapp', $product) }}">
-                Commander ce produit seul
+                {{ __('messages.ui.order_product_alone') }}
             </a>
         @else
             <a class="btn btn-outline-primary btn-custom w-100" href="{{ route('products.edit', $product) }}">

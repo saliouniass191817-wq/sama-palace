@@ -3,10 +3,24 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Créez votre boutique en ligne, présentez vos produits et recevez des commandes sur WhatsApp.">
-    <title>{{ config('app.name', 'Micro Commerce') }}</title>
+    <meta name="description" content="@yield('meta_description', __('messages.ui.site_description'))">
+    <meta property="og:site_name" content="{{ config('app.name', 'Sama Palace') }}">
+    <meta property="og:title" content="@yield('meta_title', trim($__env->yieldContent('title')) ?: config('app.name', 'Sama Palace'))">
+    <meta property="og:description" content="@yield('meta_description', __('messages.ui.site_description'))">
+    <meta property="og:image" content="@yield('meta_image', asset('images/logo.png'))">
+    <meta property="og:url" content="@yield('meta_url', url()->current())">
+    <meta property="og:type" content="@yield('meta_type', 'website')">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('meta_title', trim($__env->yieldContent('title')) ?: config('app.name', 'Sama Palace'))">
+    <meta name="twitter:description" content="@yield('meta_description', __('messages.ui.site_description'))">
+    <meta name="twitter:image" content="@yield('meta_image', asset('images/logo.png'))">
+    @if (trim($__env->yieldContent('meta_price')) !== '')
+        <meta property="product:price:amount" content="@yield('meta_price')">
+        <meta property="product:price:currency" content="@yield('meta_currency', 'XOF')">
+    @endif
+    <title>@hasSection('title')@yield('title') | @endif{{ config('app.name', 'Sama Palace') }}</title>
     <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}?v=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
     @vite('resources/css/app.css')
 </head>
@@ -21,21 +35,21 @@
             <div class="d-flex align-items-center gap-2">
                 @auth
                     @if (auth()->user()->isAdmin())
-                        <a class="btn btn-sm btn-outline-primary btn-custom" href="{{ route('admin.dashboard') }}">Administration</a>
+                        <a class="btn btn-sm btn-outline-primary btn-custom" href="{{ route('admin.dashboard') }}">{{ __('messages.ui.nav_admin') }}</a>
                     @else
-                        <a class="btn btn-sm btn-outline-primary btn-custom" href="{{ route('dashboard') }}">Tableau de bord</a>
+                        <a class="btn btn-sm btn-outline-primary btn-custom" href="{{ route('dashboard') }}">{{ __('messages.ui.nav_dashboard') }}</a>
                     @endif
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button class="btn btn-sm btn-dark btn-custom">Se déconnecter</button>
+                        <button class="btn btn-sm btn-dark btn-custom">{{ __('messages.ui.nav_logout') }}</button>
                     </form>
                 @else
                     @php($cartCount = array_sum(session('whatsapp_cart.items', [])))
                     <a class="btn btn-sm btn-outline-primary btn-custom" href="{{ route('cart.index') }}">
-                        Panier <span class="badge text-bg-light">{{ $cartCount }}</span>
+                        {{ __('messages.ui.nav_cart') }} <span class="badge text-bg-light">{{ $cartCount }}</span>
                     </a>
-                    <a class="btn btn-sm btn-outline-primary btn-custom" href="{{ route('login') }}">Se connecter</a>
-                    <a class="btn btn-sm btn-success btn-custom" href="{{ route('register') }}">S'inscrire</a>
+                    <a class="btn btn-sm btn-outline-primary btn-custom" href="{{ route('login') }}">{{ __('messages.ui.nav_login') }}</a>
+                    <a class="btn btn-sm btn-success btn-custom" href="{{ route('register') }}">{{ __('messages.ui.nav_register') }}</a>
                 @endauth
             </div>
         </div>
@@ -48,7 +62,7 @@
 
         @if ($errors->any())
             <div class="alert alert-danger app-card border-0">
-                <div class="fw-semibold mb-1">Veuillez vérifier le formulaire.</div>
+                <div class="fw-semibold mb-1">{{ __('messages.ui.verify_form') }}</div>
                 <ul class="mb-0 ps-3">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -70,28 +84,28 @@
                             Sama Palace
                         </a>
                         <p class="app-footer-description mb-0 mt-3">
-                            Découvrez les boutiques locales et partagez vos produits simplement.
+                            {{ __('messages.ui.footer_description') }}
                         </p>
                     </div>
                     <div class="col-md-5">
-                        <nav class="app-footer-links d-flex flex-wrap gap-3 justify-content-md-end" aria-label="Navigation du pied de page">
-                            <a href="{{ route('home') }}">Accueil</a>
+                        <nav class="app-footer-links d-flex flex-wrap gap-3 justify-content-md-end" aria-label="{{ __('messages.ui.footer_navigation') }}">
+                            <a href="{{ route('home') }}">{{ __('messages.ui.footer_home') }}</a>
                             @auth
                                 @if (auth()->user()->isAdmin())
-                                    <a href="{{ route('admin.dashboard') }}">Administration</a>
+                                    <a href="{{ route('admin.dashboard') }}">{{ __('messages.ui.nav_admin') }}</a>
                                 @else
-                                    <a href="{{ route('dashboard') }}">Tableau de bord</a>
+                                    <a href="{{ route('dashboard') }}">{{ __('messages.ui.nav_dashboard') }}</a>
                                 @endif
                             @else
-                                <a href="{{ route('login') }}">Se connecter</a>
-                                <a href="{{ route('register') }}">Créer un compte</a>
+                                <a href="{{ route('login') }}">{{ __('messages.ui.nav_login') }}</a>
+                                <a href="{{ route('register') }}">{{ __('messages.ui.footer_register') }}</a>
                             @endauth
                         </nav>
                     </div>
                 </div>
                 <div class="app-footer-meta d-flex flex-column flex-sm-row justify-content-between gap-2 mt-4 pt-3">
                     <span>&copy; {{ now()->year }} Sama Palace</span>
-                    <span>Le commerce local, simplement.</span>
+                    <span>{{ __('messages.ui.footer_tagline') }}</span>
                 </div>
             </div>
         </div>
