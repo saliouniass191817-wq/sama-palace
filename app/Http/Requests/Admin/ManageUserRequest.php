@@ -29,8 +29,8 @@ class ManageUserRequest extends FormRequest
         $userId = $user instanceof User ? $user->id : null;
 
         return [
-            'firstName' => ['required', 'string', 'max:255'],
-            'lastName' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
             'phone' => [
                 'required',
                 'string',
@@ -38,7 +38,7 @@ class ManageUserRequest extends FormRequest
                 'regex:/^\+[1-9][0-9]{7,14}$/',
                 Rule::unique('users', 'phone')->ignore($userId),
             ],
-            'adress' => ['required', 'string', 'max:255'],
+            'address' => ['required', 'string', 'max:255'],
             'password' => [
                 $this->isMethod('POST') ? 'required' : 'nullable',
                 'string',

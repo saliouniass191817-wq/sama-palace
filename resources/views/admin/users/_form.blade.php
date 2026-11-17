@@ -8,20 +8,20 @@
 
     <div class="row g-3">
         <div class="col-md-6">
-            <label class="form-label" for="firstName">{{ __('messages.ui.first_name') }}</label>
-            <input class="form-control" id="firstName" name="firstName" value="{{ old('firstName', $user->firstName ?? '') }}" required>
+            <label class="form-label" for="first_name">{{ __('messages.ui.first_name') }}</label>
+            <input class="form-control" id="first_name" name="first_name" value="{{ old('first_name', $user->first_name ?? '') }}" required>
         </div>
         <div class="col-md-6">
-            <label class="form-label" for="lastName">{{ __('messages.ui.name') }}</label>
-            <input class="form-control" id="lastName" name="lastName" value="{{ old('lastName', $user->lastName ?? '') }}" required>
+            <label class="form-label" for="last_name">{{ __('messages.ui.name') }}</label>
+            <input class="form-control" id="last_name" name="last_name" value="{{ old('last_name', $user->last_name ?? '') }}" required>
         </div>
         <div class="col-md-6">
             <label class="form-label" for="phone">{{ __('messages.ui.phone') }}</label>
             <input class="form-control" id="phone" name="phone" value="{{ old('phone', $user->phone ?? '') }}" placeholder="+221771234567" required>
         </div>
         <div class="col-md-6">
-            <label class="form-label" for="adress">{{ __('messages.ui.address') }}</label>
-            <input class="form-control" id="adress" name="adress" value="{{ old('adress', $user->adress ?? '') }}" required>
+            <label class="form-label" for="address">{{ __('messages.ui.address') }}</label>
+            <input class="form-control" id="address" name="address" value="{{ old('address', $user->address ?? '') }}" required>
         </div>
         <div class="col-12">
             <label class="form-label" for="password">{{ $editing ? __('messages.ui.new_password_optional') : __('messages.ui.password') }}</label>

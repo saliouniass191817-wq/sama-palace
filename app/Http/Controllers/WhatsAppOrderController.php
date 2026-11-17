@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Support\PriceFormatter;
 use App\Support\ClickRecorder;
+use App\Support\PriceFormatter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 

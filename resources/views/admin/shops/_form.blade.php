@@ -13,7 +13,7 @@
                 <option value="">{{ __('messages.ui.choose_account') }}</option>
                 @foreach ($users as $user)
                     <option value="{{ $user->id }}" @selected((string) old('user_id', $shop->user_id ?? '') === (string) $user->id)>
-                        {{ $user->firstName }} {{ $user->lastName }} — {{ $user->phone }}
+                        {{ $user->first_name }} {{ $user->last_name }} — {{ $user->phone }}
                     </option>
                 @endforeach
             </select>

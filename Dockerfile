@@ -22,7 +22,7 @@ RUN composer dump-autoload --no-dev --optimize --no-interaction
 
 FROM php:8.4-apache AS app
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libfreetype6-dev libjpeg62-turbo-dev libonig-dev libpng-dev libpq-dev libwebp-dev libzip-dev \
+    curl libfreetype6-dev libjpeg62-turbo-dev libonig-dev libpng-dev libpq-dev libwebp-dev libzip-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install gd mbstring pdo_pgsql zip \
     && rm -rf /var/lib/apt/lists/*
@@ -44,5 +44,8 @@ RUN chmod 755 /usr/local/bin/docker-entrypoint.sh \
     && sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 
 EXPOSE 10000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD curl --fail --silent --show-error "http://127.0.0.1:${PORT:-10000}/api/readyz" || exit 1
 
 CMD ["/usr/local/bin/docker-entrypoint.sh"]

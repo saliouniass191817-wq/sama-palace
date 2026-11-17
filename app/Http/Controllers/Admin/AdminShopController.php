@@ -22,7 +22,9 @@ class AdminShopController extends Controller
 
     public function create(): View
     {
-        return view('admin.shops.create', ['users' => User::orderBy('firstName')->get()]);
+        return view('admin.shops.create', [
+            'users' => User::orderBy('first_name')->get(),
+        ]);
     }
 
     public function store(ManageShopRequest $request): RedirectResponse
@@ -53,7 +55,7 @@ class AdminShopController extends Controller
     {
         return view('admin.shops.edit', [
             'shop' => $shop,
-            'users' => User::orderBy('firstName')->get(),
+            'users' => User::orderBy('first_name')->get(),
         ]);
     }
 

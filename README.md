@@ -45,3 +45,18 @@ As an alternative, set `SESSION_DRIVER=cookie` to keep the encrypted session pay
 The multi-stage Dockerfile builds frontend assets and Composer dependencies separately, then serves Laravel's `public` directory from PHP 8.4/Apache without Node in the final image. At startup, the entrypoint runs isolated migrations and optimizes the application; it exits without starting Apache if either step fails.
 
 See [docs/deployment-render-supabase.md](docs/deployment-render-supabase.md) for the Render and Supabase deployment notes.
+
+### Render and Supabase variables
+
+Required Render environment variables:
+
+- `APP_ENV`, `APP_KEY`, `APP_DEBUG`, `APP_URL`
+- `DB_CONNECTION=pgsql`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, `DB_SSLMODE`
+- `SESSION_DRIVER=database`, `SESSION_LIFETIME`, `SESSION_SECURE_COOKIE`
+- `FILESYSTEM_DISK=s3`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`, `AWS_BUCKET`, `AWS_ENDPOINT`, `AWS_USE_PATH_STYLE_ENDPOINT`
+- `AWS_PUBLIC_URL` or the configured Supabase public storage URL
+- `TRUSTED_PROXIES`
+- `LOG_CHANNEL`
+- Optional administrator variables: `ADMIN_PHONE`, `ADMIN_PASSWORD`, `ADMIN_FIRST_NAME`, `ADMIN_LAST_NAME`, `ADMIN_ADDRESS`
+
+Enter secret values only in the Render environment settings or Supabase dashboard. Do not commit credentials or put real values in this README or `.env.example`.

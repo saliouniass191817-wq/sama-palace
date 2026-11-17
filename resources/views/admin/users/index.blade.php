@@ -26,7 +26,7 @@
             <tbody>
                 @forelse ($users as $user)
                     <tr>
-                        <td>{{ $user->firstName }} {{ $user->lastName }}</td>
+                        <td>{{ $user->first_name }} {{ $user->last_name }}</td>
                         <td>{{ $user->phone }}</td>
                         <td>{{ $user->isAdmin() ? __('messages.ui.administrator') : __('messages.ui.seller') }}</td>
                         <td>{{ $user->shop?->name ?? '—' }}</td>

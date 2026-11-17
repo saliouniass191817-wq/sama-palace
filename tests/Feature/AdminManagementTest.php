@@ -97,10 +97,10 @@ class AdminManagementTest extends TestCase
         $this->actingAs($admin);
 
         $this->post(route('admin.users.store'), [
-            'firstName' => 'Awa',
-            'lastName' => 'Diop',
+            'first_name' => 'Awa',
+            'last_name' => 'Diop',
             'phone' => '+221770000001',
-            'adress' => 'Dakar',
+            'address' => 'Dakar',
             'password' => 'secret-password',
             'role' => 'admin',
         ])->assertRedirect(route('admin.users.index'));
@@ -109,10 +109,10 @@ class AdminManagementTest extends TestCase
         $this->assertFalse($seller->isAdmin());
 
         $this->put(route('admin.users.update', $seller), [
-            'firstName' => 'Awa Updated',
-            'lastName' => 'Diop',
+            'first_name' => 'Awa Updated',
+            'last_name' => 'Diop',
             'phone' => '+221770000001',
-            'adress' => 'Dakar',
+            'address' => 'Dakar',
         ])->assertRedirect(route('admin.users.index'));
 
         $this->get(route('admin.users.index'))

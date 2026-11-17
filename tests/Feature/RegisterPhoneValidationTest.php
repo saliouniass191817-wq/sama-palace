@@ -13,10 +13,10 @@ class RegisterPhoneValidationTest extends TestCase
     public function test_registration_rejects_a_phone_number_outside_e164_format(): void
     {
         $this->post(route('register'), [
-            'firstName' => 'Awa',
-            'lastName' => 'Diop',
+            'first_name' => 'Awa',
+            'last_name' => 'Diop',
             'phone' => 'not-a-phone',
-            'adress' => 'Dakar',
+            'address' => 'Dakar',
             'password' => 'secret-password',
             'password_confirmation' => 'secret-password',
         ])->assertSessionHasErrors('phone');
@@ -27,10 +27,10 @@ class RegisterPhoneValidationTest extends TestCase
     public function test_registration_normalizes_phone_format_before_storing_it(): void
     {
         $this->followingRedirects()->post(route('register'), [
-            'firstName' => 'Awa',
-            'lastName' => 'Diop',
+            'first_name' => 'Awa',
+            'last_name' => 'Diop',
             'phone' => '+221 (77) 000-00-00',
-            'adress' => 'Dakar',
+            'address' => 'Dakar',
             'password' => 'secret-password',
             'password_confirmation' => 'secret-password',
         ])->assertOk()
@@ -44,10 +44,10 @@ class RegisterPhoneValidationTest extends TestCase
         User::factory()->create(['phone' => '+221770000000']);
 
         $this->from(route('register'))->post(route('register'), [
-            'firstName' => 'Awa',
-            'lastName' => 'Diop',
+            'first_name' => 'Awa',
+            'last_name' => 'Diop',
             'phone' => '+221770000000',
-            'adress' => 'Dakar',
+            'address' => 'Dakar',
             'password' => 'secret-password',
             'password_confirmation' => 'secret-password',
         ])->assertSessionHasErrors([

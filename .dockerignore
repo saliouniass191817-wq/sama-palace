@@ -9,3 +9,4 @@ storage/framework/sessions/*
 storage/framework/views/*
 .phpunit.result.cache
 .phpunit.cache
+/tests

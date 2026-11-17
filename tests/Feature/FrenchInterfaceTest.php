@@ -19,7 +19,7 @@ class FrenchInterfaceTest extends TestCase
 
         $response = $this->from(route('register'))->post(route('register'), []);
 
-        $response->assertSessionHas('errors', fn ($errors) => $errors->first('firstName') === 'Le champ prénom est obligatoire.');
+        $response->assertSessionHas('errors', fn ($errors) => $errors->first('first_name') === 'Le champ prénom est obligatoire.');
     }
 
     public function test_image_inputs_advertise_only_supported_image_formats(): void

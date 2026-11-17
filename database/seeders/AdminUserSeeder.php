@@ -35,10 +35,10 @@ class AdminUserSeeder extends Seeder
         }
 
         $user = User::create([
-            'firstName' => config('admin.first_name'),
-            'lastName' => config('admin.last_name'),
+            'first_name' => config('admin.first_name'),
+            'last_name' => config('admin.last_name'),
             'phone' => $phone,
-            'adress' => config('admin.address'),
+            'address' => config('admin.address'),
             'password' => $password,
         ]);
         $user->forceFill(['role' => 'admin'])->save();

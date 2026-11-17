@@ -6,7 +6,6 @@ use App\Models\Product;
 use App\Models\Shop;
 use App\Support\ClickRecorder;
 use App\Support\PriceFormatter;
-use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;

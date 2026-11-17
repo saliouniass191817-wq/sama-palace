@@ -16,11 +16,11 @@
         <div class="row g-3">
             <div class="col-md-6">
                 <label class="form-label">{{ __('messages.ui.first_name') }}</label>
-                <input class="form-control" id="register-first-name" aria-label="{{ __('messages.ui.first_name') }}" name="firstName" value="{{ old('firstName') }}" required autofocus>
+                <input class="form-control" id="register-first-name" aria-label="{{ __('messages.ui.first_name') }}" name="first_name" value="{{ old('first_name') }}" required autofocus>
             </div>
             <div class="col-md-6">
                 <label class="form-label" for="register-last-name">{{ __('messages.ui.last_name') }}</label>
-                <input class="form-control" id="register-last-name" name="lastName" value="{{ old('lastName') }}" required>
+                <input class="form-control" id="register-last-name" name="last_name" value="{{ old('last_name') }}" required>
             </div>
             <div class="col-12">
                 <label class="form-label">{{ __('messages.ui.phone') }}</label>
@@ -28,7 +28,7 @@
             </div>
             <div class="col-12">
                 <label class="form-label">{{ __('messages.ui.address') }}</label>
-                <input class="form-control" id="register-address" aria-label="{{ __('messages.ui.address') }}" name="adress" value="{{ old('adress') }}" required>
+                <input class="form-control" id="register-address" aria-label="{{ __('messages.ui.address') }}" name="address" value="{{ old('address') }}" required>
             </div>
             <div class="col-md-6">
                 <label class="form-label" for="register-password">{{ __('messages.ui.password') }}</label>

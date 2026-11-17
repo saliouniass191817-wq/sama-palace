@@ -113,9 +113,15 @@ class MediaFailureTest extends TestCase
 
     private function uploadedImage(): UploadedFile
     {
+        $image = imagecreatetruecolor(1, 1);
+        ob_start();
+        imagepng($image);
+        $contents = ob_get_clean();
+        imagedestroy($image);
+
         return UploadedFile::fake()->createWithContent(
             'new.png',
-            base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=')
+            $contents
         );
     }
 }

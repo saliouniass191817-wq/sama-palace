@@ -41,10 +41,10 @@ return [
     'unique' => 'Cette valeur pour :attribute est déjà utilisée.',
     'url' => 'Le champ :attribute doit être une URL valide.',
     'attributes' => [
-        'firstName' => 'prénom',
-        'lastName' => 'nom',
+        'first_name' => 'prénom',
+        'last_name' => 'nom',
         'phone' => 'numéro de téléphone',
-        'adress' => 'adresse',
+        'address' => 'adresse',
         'password' => 'mot de passe',
         'password_confirmation' => 'confirmation du mot de passe',
         'name' => 'nom',

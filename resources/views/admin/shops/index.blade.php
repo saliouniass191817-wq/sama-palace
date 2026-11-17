@@ -21,7 +21,7 @@
                 @forelse ($shops as $shop)
                     <tr>
                         <td>{{ $shop->name }}</td>
-                        <td>{{ $shop->user->firstName }} {{ $shop->user->lastName }}</td>
+                        <td>{{ $shop->user->first_name }} {{ $shop->user->last_name }}</td>
                         <td>{{ $shop->phone }}</td>
                         <td>{{ $shop->products_count }}</td>
                         <td class="text-end text-nowrap">

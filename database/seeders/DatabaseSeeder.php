@@ -22,10 +22,10 @@ class DatabaseSeeder extends Seeder
         }
 
         $user = User::factory()->create([
-            'firstName' => 'Awa',
-            'lastName' => 'Diop',
+            'first_name' => 'Awa',
+            'last_name' => 'Diop',
             'phone' => '+221771234567',
-            'adress' => 'Dakar, Senegal',
+            'address' => 'Dakar, Senegal',
             'password' => 'password',
         ]);
 

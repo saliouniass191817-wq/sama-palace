@@ -19,10 +19,10 @@ class RegisterUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'firstName' => ['required', 'string', 'max:255'],
-            'lastName' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:30', 'regex:/^\\+[1-9][0-9]{7,14}$/', 'unique:users,phone'],
-            'adress' => ['required', 'string', 'max:255'],
+            'address' => ['required', 'string', 'max:255'],
             'password' => ['required', 'confirmed', Password::min(8)],
         ];
     }
