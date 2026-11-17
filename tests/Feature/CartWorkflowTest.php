@@ -65,7 +65,10 @@ class CartWorkflowTest extends TestCase
         $this->post(route('cart.products.store', $firstProduct));
         $this->post(route('cart.products.store', $secondProduct));
 
-        $response = $this->post(route('cart.checkout'))->assertRedirect();
+        $ipAddress = '203.0.113.7';
+        $response = $this->withServerVariables(['REMOTE_ADDR' => $ipAddress])
+            ->post(route('cart.checkout'))
+            ->assertRedirect();
         $location = $response->headers->get('Location');
         $this->assertIsString($location);
         $this->assertStringStartsWith('https://wa.me/221770000000?text=', $location);
@@ -80,14 +83,26 @@ class CartWorkflowTest extends TestCase
         $this->assertDatabaseHas('clicks', [
             'product_id' => $firstProduct->id,
             'shop_id' => $shop->id,
-            'ip_address' => null,
+            'ip_address' => substr(hash_hmac('sha256', $ipAddress, (string) config('app.key')), 0, 40),
         ]);
         $this->assertDatabaseHas('clicks', [
             'product_id' => $secondProduct->id,
             'shop_id' => $shop->id,
-            'ip_address' => null,
+            'ip_address' => substr(hash_hmac('sha256', $ipAddress, (string) config('app.key')), 0, 40),
         ]);
         $this->assertSame(2, session('whatsapp_cart.items.'.$firstProduct->id));
+    }
+
+    public function test_bot_checkout_does_not_record_product_clicks(): void
+    {
+        [, $product] = $this->createShopWithProduct('bot-checkout-shop', 'Sample product', 1000);
+        $this->post(route('cart.products.store', $product));
+
+        $this->withHeader('User-Agent', 'ExampleBot/1.0')
+            ->post(route('cart.checkout'))
+            ->assertRedirect();
+
+        $this->assertDatabaseCount('clicks', 0);
     }
 
     public function test_dashboard_hides_whatsapp_click_counts_but_keeps_product_count(): void

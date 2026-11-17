@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Shop;
+use App\Support\ClickRecorder;
 use App\Support\PriceFormatter;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -105,7 +107,7 @@ class CartController extends Controller
         return redirect()->route('cart.index')->with('success', __('messages.cart.removed'));
     }
 
-    public function checkout(Request $request): RedirectResponse
+    public function checkout(Request $request, ClickRecorder $clickRecorder): RedirectResponse
     {
         $cart = $this->resolveCart($request);
 
@@ -128,9 +130,7 @@ class CartController extends Controller
 
             $lines[] = "- {$product->name} x {$quantity} - {$unitPrice} FCFA l'unité - {$subtotal} FCFA\n{$productUrl}";
 
-            $product->clicks()->create([
-                'shop_id' => $shop->id,
-            ]);
+            $clickRecorder->record($request, $product);
         }
 
         $message = "Bonjour, je souhaite commander :\n\n"

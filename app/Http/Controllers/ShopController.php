@@ -6,6 +6,7 @@ use App\Http\Requests\SaveShopRequest;
 use App\Models\Shop;
 use App\Support\PublicMedia;
 use App\Support\VisitorTracker;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -63,21 +64,33 @@ class ShopController extends Controller
 
         $validated = $request->validated();
         $validated['user_id'] = $request->user()->id;
-        $validated['slug'] = $this->uniqueSlug($validated['name']);
 
-        if ($request->hasFile('logo')) {
-            PublicMedia::storeAndPersist(
-                $request->file('logo'),
-                'shops',
-                'logo',
-                function (string $path) use ($validated) {
-                    $validated['logo'] = $path;
+        while (true) {
+            $slug = $this->uniqueSlug($validated['name']);
+            $validated['slug'] = $slug;
 
-                    return Shop::create($validated);
-                },
-            );
-        } else {
-            Shop::create($validated);
+            try {
+                if ($request->hasFile('logo')) {
+                    PublicMedia::storeAndPersist(
+                        $request->file('logo'),
+                        'shops',
+                        'logo',
+                        function (string $path) use ($validated) {
+                            $validated['logo'] = $path;
+
+                            return Shop::create($validated);
+                        },
+                    );
+                } else {
+                    Shop::create($validated);
+                }
+
+                break;
+            } catch (UniqueConstraintViolationException $exception) {
+                if (! Shop::where('slug', $slug)->exists()) {
+                    throw $exception;
+                }
+            }
         }
 
         return redirect()->route('dashboard')->with('success', __('messages.shop.created'));
@@ -130,17 +143,13 @@ class ShopController extends Controller
         return view('shops.show', compact('shop', 'products'));
     }
 
-    private function uniqueSlug(string $name, ?Shop $shop = null): string
+    private function uniqueSlug(string $name): string
     {
         $baseSlug = Str::slug($name) ?: 'shop';
         $slug = $baseSlug;
         $counter = 2;
 
-        while (
-            Shop::where('slug', $slug)
-                ->when($shop, fn ($query) => $query->whereKeyNot($shop->id))
-                ->exists()
-        ) {
+        while (Shop::where('slug', $slug)->exists()) {
             $slug = $baseSlug.'-'.$counter;
             $counter++;
         }
